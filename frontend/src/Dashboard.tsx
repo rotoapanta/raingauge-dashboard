@@ -10,6 +10,8 @@ import {
   Battery,
   WifiOff,
   Wifi,
+  BatteryCharging,
+  TerminalSquare
 } from "lucide-react";
 
 interface StatusData {
@@ -115,16 +117,25 @@ export default function Dashboard() {
         <div className="text-gray-400">No se pudo obtener datos.</div>
       )}
 
-      {/* Botón reinicio */}
-      <div className="text-center mt-4">
+      {/* Botones reinicio y terminal en filas */}
+      <div className="flex flex-col items-center gap-4 mt-4">
         <button
           onClick={rebootDevice}
-          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 flex items-center justify-center gap-2 transition"
+          className="w-96 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 flex items-center justify-center gap-2 transition"
         >
           <RefreshCcw size={18} />
           Reboot Device
         </button>
+
+        <button
+          onClick={rebootDevice}
+          className="w-96 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center justify-center gap-2 transition"
+        >
+          <TerminalSquare size={18} />
+          Open Remote Terminal
+        </button>
       </div>
+
 
       {/* Historial de conexión */}
       <div className="mt-6">
