@@ -1,28 +1,22 @@
 from fastapi import APIRouter
-import psutil
-import socket
+import requests
 import os
 
 router = APIRouter()
 
 @router.get("/status")
 def get_status():
-    return {
-        "cpu": psutil.cpu_percent(),
-        "ram": psutil.virtual_memory().percent,
-        "disk": psutil.disk_usage('/').percent,
-        "temp": get_cpu_temp(),
-        "hostname": socket.gethostname(),
-        "ip": get_ip(),
-        "battery": {
-            "voltage": 3.7,
-            "status": "NORMAL"
-        }        
-    }
+    url = os.environ.get("RPI_STATUS_URL", "http://192.168.190.29:8000/status")
+    try:
+        response = requests.get(url, timeout=3)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        return {"error": f"No se pudo obtener el status de la Raspberry Pi: {str(e)}"}
 
 @router.post("/reboot")
 def reboot():
-    os.system("reboot")
+    os.system("/home/pi/Documents/Projects/raspberry-api/reboot_pi.sh")
     return {"status": "Rebooting..."}
 
 def get_cpu_temp():

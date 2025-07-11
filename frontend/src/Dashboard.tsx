@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { RPI_BASE_URL } from "./config";
 import {
   Cpu,
   MemoryStick,
@@ -41,7 +42,7 @@ export default function Dashboard() {
     const now = new Date().toLocaleTimeString();
     setLastPing(now);
     try {
-      const res = await fetch("http://localhost:8000/status");
+      const res = await fetch(`${RPI_BASE_URL}/status`);
       if (!res.ok) throw new Error("Offline");
       const data = await res.json();
       setStatus(data);
@@ -54,7 +55,7 @@ export default function Dashboard() {
 
   const fetchLogs = async () => {
     try {
-      const res = await fetch("http://localhost:8000/log");
+      const res = await fetch(`${RPI_BASE_URL}/log`);
       const data = await res.json();
       setLogs(data);
     } catch (err) {
@@ -64,7 +65,7 @@ export default function Dashboard() {
 
   const rebootDevice = async () => {
     try {
-      await fetch("http://localhost:8000/reboot", { method: "POST" });
+      await fetch(`${RPI_BASE_URL}/reboot`, { method: "POST" });
       alert("Reboot command sent successfully.");
     } catch (err) {
       alert("Failed to send reboot command.");
