@@ -4,15 +4,16 @@ import os
 
 router = APIRouter()
 
+# Lista centralizada de IPs de las Raspberry Pi a monitorear
+RASPBERRY_IPS = [
+    "192.168.190.29",
+    "192.168.190.28"
+]
+
 @router.get("/status")
 def get_status():
-    # Lista de IPs de las Raspberry Pi a monitorear
-    raspberry_ips = [
-        "192.168.190.29",
-        "192.168.190.28"
-    ]
     results = []
-    for ip in raspberry_ips:
+    for ip in RASPBERRY_IPS:
         url = f"http://{ip}:8000/status"
         try:
             response = requests.get(url, timeout=3)
@@ -25,12 +26,8 @@ def get_status():
 
 @router.get("/log")
 def get_logs():
-    raspberry_ips = [
-        "192.168.190.29",
-        "192.168.190.28"
-    ]
     results = []
-    for ip in raspberry_ips:
+    for ip in RASPBERRY_IPS:
         url = f"http://{ip}:8000/log"
         try:
             response = requests.get(url, timeout=3)
