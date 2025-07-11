@@ -17,9 +17,9 @@ app.add_middleware(
 # Rutas principales
 app.include_router(status_router)
 
-@app.get("/log")
-def get_connection_logs():
-    return read_logs()
+# @app.get("/log")
+# def get_connection_logs():
+#     return read_logs()
 
 # 🟢 Ejecuta el monitoreo en un hilo en segundo plano
 threading.Thread(target=start_monitoring, daemon=True).start()

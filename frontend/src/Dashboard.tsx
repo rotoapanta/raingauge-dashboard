@@ -14,16 +14,17 @@ import {
 } from "lucide-react";
 
 interface StatusData {
-  cpu: number;
-  ram: number;
-  disk: number;
-  temp: number | null;
-  hostname: string;
   ip: string;
-  battery: {
+  cpu?: number;
+  ram?: number;
+  disk?: number;
+  temp?: number | null;
+  hostname?: string;
+  battery?: {
     voltage: number;
     status: string;
   };
+  error?: string;
 }
 
 interface LogEntry {
@@ -31,11 +32,16 @@ interface LogEntry {
   status: string;
 }
 
+interface LogsByRaspberry {
+  ip: string;
+  logs: LogEntry[] | { error: string };
+}
+
 export default function Dashboard() {
-  const [status, setStatus] = useState<StatusData | null>(null);
+  const [statusList, setStatusList] = useState<StatusData[]>([]);
   const [isOnline, setIsOnline] = useState<boolean>(true);
   const [lastPing, setLastPing] = useState<string>("");
-  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [logsByRaspberry, setLogsByRaspberry] = useState<LogsByRaspberry[]>([]);
   const [showTerminal, setShowTerminal] = useState<boolean>(false);
 
   const fetchStatus = async () => {
@@ -45,11 +51,11 @@ export default function Dashboard() {
       const res = await fetch(`${RPI_BASE_URL}/status`);
       if (!res.ok) throw new Error("Offline");
       const data = await res.json();
-      setStatus(data);
+      setStatusList(Array.isArray(data) ? data : []);
       setIsOnline(true);
     } catch (err) {
       setIsOnline(false);
-      setStatus(null);
+      setStatusList([]);
     }
   };
 
@@ -57,7 +63,7 @@ export default function Dashboard() {
     try {
       const res = await fetch(`${RPI_BASE_URL}/log`);
       const data = await res.json();
-      setLogs(data);
+      setLogsByRaspberry(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error fetching logs");
     }
@@ -108,24 +114,30 @@ export default function Dashboard() {
         <div className="text-sm text-gray-300">Último ping: {lastPing}</div>
       </div>
 
-      {/* Panel de métricas */}
-      {status ? (
+      {/* Panel de métricas tipo matriz (grid) para varias Raspberry Pi */}
+      {statusList.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card icon={<Cpu />} title="CPU Usage" value={`${status.cpu}%`} />
-          <Card icon={<MemoryStick />} title="RAM Usage" value={`${status.ram}%`} />
-          <Card icon={<HardDrive />} title="Disk Usage" value={`${status.disk}%`} />
-          <Card
-            icon={<Thermometer />}
-            title="CPU Temp"
-            value={status.temp !== null ? `${status.temp} °C` : "N/A"}
-          />
-          <Card icon={<Terminal />} title="Hostname" value={status.hostname} />
-          <Card icon={<Wifi />} title="IP Address" value={status.ip} />
-          <Card
-            icon={<BatteryIcon status={status.battery.status} />}
-            title="Battery Voltage"
-            value={`${status.battery.voltage} V (${status.battery.status})`}
-          />
+          {statusList.map((status, i) => (
+            <div key={status.ip || i} className="bg-gray-800 rounded-lg shadow p-4 flex flex-col gap-2">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono text-sm text-blue-300">{status.ip}</span>
+                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${status.error ? "bg-red-600 text-white" : "bg-green-600 text-white"}`}>
+                  {status.error ? "Offline" : "Online"}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-4">
+                <Card icon={<Cpu />} title="CPU" value={status.cpu !== undefined ? `${status.cpu}%` : "-"} small />
+                <Card icon={<MemoryStick />} title="RAM" value={status.ram !== undefined ? `${status.ram}%` : "-"} small />
+                <Card icon={<HardDrive />} title="Disco" value={status.disk !== undefined ? `${status.disk}%` : "-"} small />
+                <Card icon={<Thermometer />} title="Temp" value={status.temp !== undefined ? `${status.temp}°C` : "-"} small />
+                <Card icon={<Terminal />} title="Hostname" value={status.hostname || "-"} small />
+                <Card icon={<BatteryIcon status={status.battery && typeof status.battery.status === 'string' ? status.battery.status : ""} />} title="Batería" value={status.battery && typeof status.battery.voltage === 'number' && typeof status.battery.status === 'string' ? `${status.battery.voltage}V (${status.battery.status})` : "-"} small />
+              </div>
+              {status.error && (
+                <div className="text-xs text-red-400 mt-2">No disponible</div>
+              )}
+            </div>
+          ))}
         </div>
       ) : (
         <div className="text-gray-400">No se pudo obtener datos.</div>
@@ -161,33 +173,44 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Historial de conexión */}
+      {/* Historial de conexión por Raspberry Pi */}
       <div className="mt-6">
         <h2 className="text-lg font-semibold mb-2">Historial de conexión</h2>
-        <table className="min-w-full bg-gray-900 text-white text-sm rounded shadow">
-          <thead>
-            <tr className="bg-gray-700 text-left">
-              <th className="px-4 py-2">Fecha / Hora</th>
-              <th className="px-4 py-2">Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {logs.slice().reverse().map((log, i) => (
-              <tr key={i} className="border-t border-gray-700">
-                <td className="px-4 py-2">
-                  {new Date(log.timestamp).toLocaleString()}
-                </td>
-                <td
-                  className={`px-4 py-2 font-bold ${
-                    log.status === "ONLINE" ? "text-green-400" : "text-red-400"
-                  }`}
-                >
-                  {log.status}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {logsByRaspberry.map((rasp, idx) => (
+            <div key={rasp.ip || idx} className="bg-gray-900 rounded-lg shadow p-4">
+              <div className="font-mono text-blue-300 mb-2">{rasp.ip}</div>
+              {Array.isArray(rasp.logs) ? (
+                <table className="min-w-full text-white text-sm rounded shadow">
+                  <thead>
+                    <tr className="bg-gray-700 text-left">
+                      <th className="px-4 py-2">Fecha / Hora</th>
+                      <th className="px-4 py-2">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rasp.logs.slice().reverse().map((log: LogEntry, i: number) => (
+                      <tr key={i} className="border-t border-gray-700">
+                        <td className="px-4 py-2">
+                          {new Date(log.timestamp).toLocaleString()}
+                        </td>
+                        <td
+                          className={`px-4 py-2 font-bold ${
+                            log.status === "ONLINE" ? "text-green-400" : "text-red-400"
+                          }`}
+                        >
+                          {log.status}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="text-red-400 text-sm">No disponible</div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -197,17 +220,19 @@ function Card({
   icon,
   title,
   value,
+  small = false,
 }: {
   icon: React.ReactNode;
   title: string;
   value: string;
+  small?: boolean;
 }) {
   return (
-    <div className="bg-gray-800 rounded-lg shadow p-4 flex items-center gap-4">
+    <div className={`flex items-center gap-2 ${small ? "bg-gray-900 rounded p-2" : "bg-gray-800 rounded-lg shadow p-4"}`}>
       <div className="text-blue-400">{icon}</div>
       <div>
-        <h2 className="text-lg font-semibold">{title}</h2>
-        <p className="text-2xl font-bold">{value}</p>
+        <h2 className={small ? "text-xs font-semibold" : "text-lg font-semibold"}>{title}</h2>
+        <p className={small ? "text-base font-bold" : "text-2xl font-bold"}>{value}</p>
       </div>
     </div>
   );
