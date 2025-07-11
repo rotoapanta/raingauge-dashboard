@@ -1,41 +1,20 @@
 from fastapi import APIRouter
-import requests
 import os
+from config import RASPBERRY_IPS
+from utils import fetch_status, fetch_logs
 
 router = APIRouter()
 
-# Lista centralizada de IPs de las Raspberry Pi a monitorear
-RASPBERRY_IPS = [
-    "192.168.190.29",
-    "192.168.190.28"
-]
-
 @router.get("/status")
-def get_status():
-    results = []
-    for ip in RASPBERRY_IPS:
-        url = f"http://{ip}:8000/status"
-        try:
-            response = requests.get(url, timeout=3)
-            response.raise_for_status()
-            data = response.json()
-        except Exception as e:
-            data = {"error": f"No se pudo obtener el status de la Raspberry Pi {ip}: {str(e)}"}
-        results.append({"ip": ip, **data})
+async def get_status():
+    import asyncio
+    results = await asyncio.gather(*(fetch_status(ip) for ip in RASPBERRY_IPS))
     return results
 
 @router.get("/log")
-def get_logs():
-    results = []
-    for ip in RASPBERRY_IPS:
-        url = f"http://{ip}:8000/log"
-        try:
-            response = requests.get(url, timeout=3)
-            response.raise_for_status()
-            data = response.json()
-        except Exception as e:
-            data = {"error": "No disponible"}
-        results.append({"ip": ip, "logs": data})
+async def get_logs():
+    import asyncio
+    results = await asyncio.gather(*(fetch_logs(ip) for ip in RASPBERRY_IPS))
     return results
 
 @router.post("/reboot")

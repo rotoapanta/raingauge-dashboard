@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
 import { RPI_BASE_URL } from "./config";
+import { RaspberryCard } from "./components/RaspberryCard";
+import { RaspberryLogsCard } from "./components/RaspberryLogsCard";
+import { Card, BatteryIcon } from "./components/Shared";
+import { Spinner } from "./components/Spinner";
 import {
-  Cpu,
-  MemoryStick,
-  HardDrive,
-  Thermometer,
-  Terminal,
   TerminalSquare,
   RefreshCcw,
-  Battery,
   WifiOff,
   Wifi,
 } from "lucide-react";
@@ -43,29 +41,38 @@ export default function Dashboard() {
   const [lastPing, setLastPing] = useState<string>("");
   const [logsByRaspberry, setLogsByRaspberry] = useState<LogsByRaspberry[]>([]);
   const [showTerminal, setShowTerminal] = useState<boolean>(false);
+  const [globalError, setGlobalError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
 
   const fetchStatus = async () => {
     const now = new Date().toLocaleTimeString();
     setLastPing(now);
+    setLoading(true);
+    setGlobalError("");
     try {
       const res = await fetch(`${RPI_BASE_URL}/status`);
-      if (!res.ok) throw new Error("Offline");
+      if (!res.ok) throw new Error("No se pudo conectar con el backend");
       const data = await res.json();
       setStatusList(Array.isArray(data) ? data : []);
       setIsOnline(true);
     } catch (err) {
       setIsOnline(false);
       setStatusList([]);
+      setGlobalError("No se pudo conectar con el backend. Verifica la red o el servidor.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchLogs = async () => {
     try {
       const res = await fetch(`${RPI_BASE_URL}/log`);
+      if (!res.ok) throw new Error("No se pudo conectar con el backend");
       const data = await res.json();
       setLogsByRaspberry(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Error fetching logs");
+      setLogsByRaspberry([]);
+      setGlobalError("No se pudo obtener el historial de logs.");
     }
   };
 
@@ -94,6 +101,12 @@ export default function Dashboard() {
 
   return (
     <div className="p-4 space-y-4">
+      {/* Error global */}
+      {globalError && (
+        <div className="bg-red-700 text-white px-4 py-2 rounded mb-2 text-center font-semibold">
+          {globalError}
+        </div>
+      )}
       {/* Estado y ping */}
       <div className="flex items-center justify-between">
         <div
@@ -115,28 +128,12 @@ export default function Dashboard() {
       </div>
 
       {/* Panel de métricas tipo matriz (grid) para varias Raspberry Pi */}
-      {statusList.length > 0 ? (
+      {loading ? (
+        <Spinner />
+      ) : statusList.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {statusList.map((status, i) => (
-            <div key={status.ip || i} className="bg-gray-800 rounded-lg shadow p-4 flex flex-col gap-2">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-mono text-sm text-blue-300">{status.ip}</span>
-                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${status.error ? "bg-red-600 text-white" : "bg-green-600 text-white"}`}>
-                  {status.error ? "Offline" : "Online"}
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-4">
-                <Card icon={<Cpu />} title="CPU" value={status.cpu !== undefined ? `${status.cpu}%` : "-"} small />
-                <Card icon={<MemoryStick />} title="RAM" value={status.ram !== undefined ? `${status.ram}%` : "-"} small />
-                <Card icon={<HardDrive />} title="Disco" value={status.disk !== undefined ? `${status.disk}%` : "-"} small />
-                <Card icon={<Thermometer />} title="Temp" value={status.temp !== undefined ? `${status.temp}°C` : "-"} small />
-                <Card icon={<Terminal />} title="Hostname" value={status.hostname || "-"} small />
-                <Card icon={<BatteryIcon status={status.battery && typeof status.battery.status === 'string' ? status.battery.status : ""} />} title="Batería" value={status.battery && typeof status.battery.voltage === 'number' && typeof status.battery.status === 'string' ? `${status.battery.voltage}V (${status.battery.status})` : "-"} small />
-              </div>
-              {status.error && (
-                <div className="text-xs text-red-400 mt-2">No disponible</div>
-              )}
-            </div>
+            <RaspberryCard key={status.ip || i} status={status} />
           ))}
         </div>
       ) : (
@@ -178,37 +175,7 @@ export default function Dashboard() {
         <h2 className="text-lg font-semibold mb-2">Historial de conexión</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {logsByRaspberry.map((rasp, idx) => (
-            <div key={rasp.ip || idx} className="bg-gray-900 rounded-lg shadow p-4">
-              <div className="font-mono text-blue-300 mb-2">{rasp.ip}</div>
-              {Array.isArray(rasp.logs) ? (
-                <table className="min-w-full text-white text-sm rounded shadow">
-                  <thead>
-                    <tr className="bg-gray-700 text-left">
-                      <th className="px-4 py-2">Fecha / Hora</th>
-                      <th className="px-4 py-2">Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rasp.logs.slice().reverse().map((log: LogEntry, i: number) => (
-                      <tr key={i} className="border-t border-gray-700">
-                        <td className="px-4 py-2">
-                          {new Date(log.timestamp).toLocaleString()}
-                        </td>
-                        <td
-                          className={`px-4 py-2 font-bold ${
-                            log.status === "ONLINE" ? "text-green-400" : "text-red-400"
-                          }`}
-                        >
-                          {log.status}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="text-red-400 text-sm">No disponible</div>
-              )}
-            </div>
+            <RaspberryLogsCard key={rasp.ip || idx} rasp={rasp} />
           ))}
         </div>
       </div>
@@ -216,38 +183,4 @@ export default function Dashboard() {
   );
 }
 
-function Card({
-  icon,
-  title,
-  value,
-  small = false,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  value: string;
-  small?: boolean;
-}) {
-  return (
-    <div className={`flex items-center gap-2 ${small ? "bg-gray-900 rounded p-2" : "bg-gray-800 rounded-lg shadow p-4"}`}>
-      <div className="text-blue-400">{icon}</div>
-      <div>
-        <h2 className={small ? "text-xs font-semibold" : "text-lg font-semibold"}>{title}</h2>
-        <p className={small ? "text-base font-bold" : "text-2xl font-bold"}>{value}</p>
-      </div>
-    </div>
-  );
-}
-
-function BatteryIcon({ status }: { status: string }) {
-  const color =
-    status === "CRITICAL"
-      ? "text-red-600"
-      : status === "LOW"
-      ? "text-yellow-400"
-      : "text-green-400";
-  return (
-    <div className={color}>
-      <Battery />
-    </div>
-  );
-}
+// Card y BatteryIcon ahora están en ./components/Shared
