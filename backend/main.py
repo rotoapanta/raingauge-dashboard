@@ -1,6 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from endpoints.status_endpoint import router as status_router  # ✅ corrección aquí
+from endpoints.device_endpoint import router as device_router
+from endpoints.auth_endpoint import router as auth_router
+from endpoints.user_endpoint import router as user_router
+from endpoints.status_ws import router as ws_router
 from services.logging_utils import read_logs
 from background.ping_task import start_monitoring
 import threading
@@ -17,6 +21,10 @@ app.add_middleware(
 
 # Rutas principales
 app.include_router(status_router)
+app.include_router(device_router)
+app.include_router(auth_router)
+app.include_router(user_router)
+app.include_router(ws_router)
 
 # @app.get("/log")
 # def get_connection_logs():

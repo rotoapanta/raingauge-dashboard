@@ -1,70 +1,105 @@
-# 🌧️ RainGauge Dashboard
+# Raingauge Dashboard
 
-RainGauge Dashboard es una aplicación de monitoreo para estaciones meteorológicas con Raspberry Pi. Proporciona una interfaz web que permite visualizar el estado del sistema, controlar remotamente el equipo y consultar el historial de conexión.
+Dashboard centralizado para monitoreo en tiempo real de múltiples Raspberry Pi, con autenticación Active Directory, alertas, métricas históricas, WebSockets, internacionalización y panel de administración avanzado.
 
-## 📦 Estructura del Proyecto
+---
 
-raingauge-dashboard/
-├── backend/
-│ ├── services/
-│ ├── background/
-│ └── main.py
-├── frontend/
-│ ├── src/
-│ ├── Dashboard.tsx
-│ └── ...
-├── docker-compose.yml
-└── README.md
+## Estructura del Proyecto
 
-
-## 🚀 Funcionalidades
-
-- Monitoreo en tiempo real:
-  - CPU, RAM y Disco
-  - Temperatura del CPU
-  - Estado de la batería (voltaje y nivel)
-  - IP y nombre del host
-- Estado de conectividad (Online / Offline)
-- Registro de eventos de conexión / desconexión
-- Botones para reinicio y terminal remota (próximamente)
-
-## 🐳 Cómo levantar el sistema con Docker
-
-```bash
-docker compose up --build -d
+```
+backend/
+  ├── models.py
+  ├── crud.py
+  ├── main.py
+  ├── requirements.txt
+  ├── endpoints/
+  ├── auth_utils.py
+  └── ...
+frontend/
+  ├── src/
+  │   ├── Dashboard.tsx
+  │   ├── i18n.ts
+  │   ├── locales/
+  │   └── components/
+  ├── package.json
+  └── ...
+docker-compose.yml
+README.md
 ```
 
-## 🌐 Acceso
+---
 
-- **Frontend:** [http://localhost](http://localhost)
-- **Backend API:** [http://localhost:8000/status](http://localhost:8000/status)
+## Requisitos
+
+- Docker y Docker Compose
+- Acceso a Active Directory/LDAP
+- Node.js y npm (solo para desarrollo local del frontend)
 
 ---
 
-## ⚙️ Endpoints REST disponibles
+## Instalación y Despliegue
 
-| Método | Endpoint | Descripción                           |
-|--------|----------|---------------------------------------|
-| GET    | /status  | Estado del sistema (CPU, RAM, etc.)   |
-| POST   | /reboot  | Reinicia el dispositivo               |
-| GET    | /log     | Muestra historial de conexión         |
-
----
-
-## 🛠️ Tecnologías Utilizadas
-
-- **Backend:** FastAPI (Python 3.11), psutil, uvicorn  
-- **Frontend:** React + TypeScript + TailwindCSS  
-- **Contenedores:** Docker, Docker Compose  
-
----
-
-## 👨‍💻 Autor
-
-Desarrollado por **Roberto Toapanta**
+1. Clona el repositorio y entra al directorio.
+2. Instala las dependencias de frontend si desarrollas localmente:
+   ```bash
+   cd frontend
+   npm install
+   ```
+3. Configura las variables de entorno necesarias en `docker-compose.yml`:
+   - TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+   - LDAP_SERVER, LDAP_BASE_DN, LDAP_SEARCH_ATTR, JWT_SECRET
+4. Construye y levanta los servicios:
+   ```bash
+   docker-compose build
+   docker-compose up -d
+   ```
+5. Accede al dashboard en [http://localhost](http://localhost).
 
 ---
 
-## 📄 Licencia
+## Uso
 
-MIT License
+- Inicia sesión con tu usuario y contraseña de Active Directory.
+- Monitorea el estado de tus Raspberry Pi en tiempo real.
+- Administra dispositivos, usuarios y alertas desde el panel de administración.
+- Cambia el idioma de la interfaz desde el selector (ES/EN).
+- Recibe alertas críticas en Telegram automáticamente.
+
+---
+
+## Configuración avanzada
+
+- **Active Directory:** Edita las variables LDAP en `docker-compose.yml`.
+- **Notificaciones Telegram:** Configura el bot y el chat ID en `docker-compose.yml`.
+- **Internacionalización:** Agrega archivos en `frontend/src/locales/`.
+- **WebSockets:** El dashboard se actualiza en tiempo real sin recargar.
+
+---
+
+## Seguridad y roles
+
+- Solo usuarios autenticados pueden acceder al dashboard.
+- Solo administradores pueden gestionar usuarios y dispositivos.
+- Los roles se asignan desde el panel de administración.
+
+---
+
+## Troubleshooting
+
+- Si el frontend muestra pantalla en blanco, revisa la consola del navegador y los logs de Docker.
+- Si el login falla, asegúrate de usar solo el nombre de usuario de AD (no el correo).
+- Si no recibes alertas en Telegram, revisa el token y el chat ID.
+
+---
+
+## Créditos y licencia
+
+Desarrollado por rotoapanta.  
+Licencia MIT.
+
+---
+
+## Contribuir
+
+Pull requests y sugerencias son bienvenidas.  
+Consulta la documentación en la carpeta `docs/` para detalles avanzados.

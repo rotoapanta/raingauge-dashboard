@@ -1,5 +1,10 @@
 fastapi
-uvicorn
+uvicorn[standard]
 psutil
 requests
 httpx
+sqlmodel
+ldap3
+pyjwt
+bcrypt
+websockets
