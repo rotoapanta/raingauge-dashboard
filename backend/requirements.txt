@@ -8,3 +8,4 @@ ldap3
 pyjwt
 bcrypt
 websockets
+python-dotenv

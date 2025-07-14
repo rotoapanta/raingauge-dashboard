@@ -1,3 +1,16 @@
+from dotenv import load_dotenv
+load_dotenv()
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("backend.log", encoding="utf-8"),
+        logging.StreamHandler()
+    ]
+)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from endpoints.status_endpoint import router as status_router  # ✅ corrección aquí

@@ -5,57 +5,67 @@ from models import Device
 from utils import fetch_status, fetch_logs, send_telegram_alert
 import crud
 
+from fastapi.responses import PlainTextResponse, Response
+
 router = APIRouter()
+
+@router.get("/", response_class=PlainTextResponse)
+def root():
+    return "API Raingauge funcionando"
+
+@router.get("/favicon.ico")
+def favicon():
+    # Devuelve un favicon vacío para evitar error en navegador
+    return Response(content=b"", media_type="image/x-icon")
 
 from endpoints.device_endpoint import engine
 
 @router.get("/status")
 async def get_status():
     import asyncio
-    # Obtener dispositivos habilitados desde la base de datos
-    with Session(engine) as session:
-        devices = session.exec(select(Device).where(Device.enabled == True)).all()
-        results = await asyncio.gather(*(fetch_status(device.ip) for device in devices))
-        # Guardar histórico de métricas para cada dispositivo que responde
-        for device, result in zip(devices, results):
-            if not result.get("error"):
-                cpu = result.get("cpu")
-                ram = result.get("ram")
-                disk = result.get("disk")
-                temp = result.get("temp")
-                crud.save_metric_history(
-                    session,
-                    device_id=device.id,
-                    cpu=cpu,
-                    ram=ram,
-                    disk=disk,
-                    temp=temp,
-                    status="ONLINE"
-                )
-                # Alertas por umbral crítico
-                if (cpu is not None and cpu > 90) or (temp is not None and temp > 70):
-                    msg = f"CPU alta: {cpu}%" if cpu and cpu > 90 else f"Temp alta: {temp}°C"
-                    crud.create_alert(
-                        session,
-                        device_id=device.id,
-                        level="CRITICAL",
-                        message=msg
-                    )
-                    await send_telegram_alert(f"[ALERTA] {device.name} ({device.ip}): {msg}")
-            else:
-                crud.save_metric_history(
-                    session,
-                    device_id=device.id,
-                    status="OFFLINE"
-                )
-                crud.create_alert(
-                    session,
-                    device_id=device.id,
-                    level="CRITICAL",
-                    message="Dispositivo offline"
-                )
-                await send_telegram_alert(f"[ALERTA] {device.name} ({device.ip}): Dispositivo offline")
-        return results
+    import os
+    import requests
+    import socket
+    # Leer la lista de IPs desde la variable de entorno
+    ips = os.getenv("RASPBERRY_IPS", "").split(",")
+    ips = [ip.strip() for ip in ips if ip.strip()]
+    print("[STATUS] Consultando las siguientes IPs:", ips)
+    if not ips:
+        # Si no hay IPs, devolver estado local
+        def get_cpu_temp():
+            try:
+                with open("/sys/class/thermal/thermal_zone0/temp") as f:
+                    return round(int(f.read()) / 1000, 1)
+            except:
+                return None
+        def get_ip():
+            try:
+                return socket.gethostbyname(socket.gethostname())
+            except:
+                return "Unknown"
+        print("[STATUS] No hay IPs configuradas. Devolviendo estado local.")
+        return {
+            "status": "ok",
+            "ip": get_ip(),
+            "cpu_temp": get_cpu_temp(),
+        }
+    async def fetch_status_async(ip):
+        url = f"http://{ip}:8000/status"
+        print(f"[STATUS] Consultando {url}")
+        try:
+            loop = asyncio.get_event_loop()
+            resp = await loop.run_in_executor(None, requests.get, url)
+            resp.raise_for_status()
+            data = resp.json()
+            data["ip"] = ip
+            print(f"[STATUS] Respuesta de {ip}: {data}")
+            return data
+        except Exception as e:
+            print(f"[STATUS] Error consultando {ip}: {e}")
+            return {"ip": ip, "error": str(e)}
+    results = await asyncio.gather(*(fetch_status_async(ip) for ip in ips))
+    print("[STATUS] Resultados finales:", results)
+    return results
 
 @router.get("/log")
 async def get_logs():

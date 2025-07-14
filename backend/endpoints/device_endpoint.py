@@ -26,6 +26,17 @@ def create_device(device: Device, session: Session = Depends(get_session), user:
 def read_devices(session: Session = Depends(get_session)):
     return crud.get_devices(session)
 
+@router.get("/alerts", response_model=List[Alert])
+def get_alerts(session: Session = Depends(get_session), unresolved_only: bool = False):
+    return crud.get_alerts(session, unresolved_only=unresolved_only)
+
+@router.post("/alerts/{alert_id}/resolve", response_model=dict)
+def resolve_alert(alert_id: int, session: Session = Depends(get_session), user: str = Depends(get_current_user)):
+    ok = crud.resolve_alert(session, alert_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Alert not found")
+    return {"ok": True}
+
 @router.get("/{device_id}", response_model=Device)
 def read_device(device_id: int, session: Session = Depends(get_session)):
     device = crud.get_device(session, device_id)
@@ -56,14 +67,3 @@ def get_device_metrics(device_id: int, session: Session = Depends(get_session),
     if end:
         query = query.where(MetricHistory.timestamp <= end)
     return session.exec(query.order_by(MetricHistory.timestamp)).all()
-
-@router.get("/alerts", response_model=List[Alert])
-def get_alerts(session: Session = Depends(get_session), unresolved_only: bool = False):
-    return crud.get_alerts(session, unresolved_only=unresolved_only)
-
-@router.post("/alerts/{alert_id}/resolve", response_model=dict)
-def resolve_alert(alert_id: int, session: Session = Depends(get_session), user: str = Depends(get_current_user)):
-    ok = crud.resolve_alert(session, alert_id)
-    if not ok:
-        raise HTTPException(status_code=404, detail="Alert not found")
-    return {"ok": True}

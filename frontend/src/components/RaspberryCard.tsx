@@ -30,7 +30,7 @@ export function RaspberryCard({ status }: { status: StatusData }) {
         <Card icon={<HardDrive />} title="Disco" value={status.disk !== undefined ? `${status.disk}%` : "-"} small />
         <Card icon={<Thermometer />} title="Temp" value={status.temp !== undefined ? `${status.temp}°C` : "-"} small />
         <Card icon={<Terminal />} title="Hostname" value={status.hostname || "-"} small />
-        <Card icon={<BatteryIcon status={status.battery && typeof status.battery.status === 'string' ? status.battery.status : ""} />} title="Batería" value={status.battery && typeof status.battery.voltage === 'number' && typeof status.battery.status === 'string' ? `${status.battery.voltage}V (${status.battery.status})` : "-"} small />
+        <Card icon={<BatteryIcon status={status.battery && typeof status.battery.status === 'string' ? status.battery.status : "N/A"} />} title="Batería" value={status.battery && typeof status.battery.voltage === 'number' && typeof status.battery.status === 'string' ? `${status.battery.voltage}V (${status.battery.status})` : "N/A"} small />
       </div>
       {status.error && (
         <div className="text-xs text-red-400 mt-2">No disponible</div>
