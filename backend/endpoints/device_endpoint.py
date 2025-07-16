@@ -5,6 +5,8 @@ from models import Device, MetricHistory, Alert
 import crud
 from datetime import datetime
 from auth_utils import get_current_user
+from utils import send_telegram_alert
+import asyncio
 
 DATABASE_URL = "sqlite:///raspberry.db"
 engine = create_engine(DATABASE_URL, echo=True)
@@ -19,8 +21,11 @@ def get_session():
 router = APIRouter(prefix="/devices", tags=["devices"])
 
 @router.post("/", response_model=Device)
-def create_device(device: Device, session: Session = Depends(get_session), user: str = Depends(get_current_user)):
-    return crud.create_device(session, device)
+async def create_device(device: Device, session: Session = Depends(get_session), user: str = Depends(get_current_user)):
+    created = crud.create_device(session, device)
+    msg = f"El usuario {user} creó el dispositivo {device.ip}"
+    await send_telegram_alert(msg)
+    return created
 
 @router.get("/", response_model=List[Device])
 def read_devices(session: Session = Depends(get_session)):
@@ -45,10 +50,12 @@ def read_device(device_id: int, session: Session = Depends(get_session)):
     return device
 
 @router.put("/{device_id}", response_model=Device)
-def update_device(device_id: int, device: Device, session: Session = Depends(get_session), user: str = Depends(get_current_user)):
+async def update_device(device_id: int, device: Device, session: Session = Depends(get_session), user: str = Depends(get_current_user)):
     updated = crud.update_device(session, device_id, device.dict(exclude_unset=True))
     if not updated:
         raise HTTPException(status_code=404, detail="Device not found")
+    msg = f"El usuario {user} actualizó el dispositivo {device.ip}"
+    await send_telegram_alert(msg)
     return updated
 
 @router.delete("/{device_id}", response_model=dict)

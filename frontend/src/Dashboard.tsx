@@ -4,11 +4,12 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import "./i18n";
 import { RaspberryCard } from "./components/RaspberryCard";
+import { RaspberryTable } from "./components/RaspberryTable";
 import { RaspberryLogsCard } from "./components/RaspberryLogsCard";
 import { DeviceAdmin } from "./components/DeviceAdmin";
 import { MetricChart } from "./components/MetricChart";
 import { AlertBanner } from "./components/AlertBanner";
-import { AlertHistory } from "./components/AlertHistory";
+// import { AlertHistory } from "./components/AlertHistory";
 import { UserAdmin } from "./components/UserAdmin";
 import { Card, BatteryIcon } from "./components/Shared";
 import { Spinner } from "./components/Spinner";
@@ -74,7 +75,7 @@ export default function Dashboard() {
   const [showTerminal, setShowTerminal] = useState<boolean>(false);
   const [globalError, setGlobalError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
-  const [tab, setTab] = useState<"dashboard" | "admin" | "alerts">("dashboard");
+  const [tab, setTab] = useState<"dashboard" | "admin">("dashboard");
   const [devices, setDevices] = useState<any[]>([]);
   const [showChart, setShowChart] = useState<{ deviceId: number; name: string } | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(() => isTokenValid(localStorage.getItem("token")));
@@ -130,6 +131,20 @@ export default function Dashboard() {
       if (!res.ok) throw new Error("No se pudo conectar con el backend");
       const data = await res.json();
       setLogsByRaspberry(Array.isArray(data) ? data : []);
+      // Verifica si todos los logs fallaron
+      if (Array.isArray(data) && data.length > 0) {
+        const allFail = data.every((d) => d.logs && d.logs.error);
+        const someFail = data.some((d) => d.logs && d.logs.error);
+        if (allFail) {
+          setGlobalError("No se pudo obtener el historial de logs de ningún dispositivo.");
+        } else if (someFail) {
+          setGlobalError("Algunos dispositivos no respondieron al obtener el historial de logs.");
+        } else {
+          setGlobalError("");
+        }
+      } else {
+        setGlobalError("No se pudo obtener el historial de logs.");
+      }
     } catch (err) {
       setLogsByRaspberry([]);
       setGlobalError("No se pudo obtener el historial de logs.");
@@ -185,6 +200,14 @@ export default function Dashboard() {
     };
   }, []);
 
+  // Forzar actualización al cambiar a la pestaña dashboard
+  useEffect(() => {
+    if (tab === "dashboard") {
+      fetchStatus();
+      fetchLogs();
+    }
+  }, [tab]);
+
   // Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -224,106 +247,59 @@ export default function Dashboard() {
             {t("Administrar Dispositivos")}
           </button>
         )}
-        <button
-          className={`px-4 py-2 rounded-t ${tab === "alerts" ? "bg-blue-700 text-white" : "bg-gray-800 text-gray-300"}`}
-          onClick={() => setTab("alerts")}
-        >
-          {t("Historial de Alertas")}
-        </button>
+        {/* Botón de historial de alertas eliminado */}
         <button
           className="ml-auto px-4 py-2 rounded bg-red-700 text-white"
           onClick={handleLogout}
         >
-          {t("Cerrar sesión")}
+          {t("Cerrar sesión")} {(() => {
+            try {
+              const token = localStorage.getItem("token");
+              if (!token) return "";
+              const payload = JSON.parse(atob(token.split(".")[1]));
+              return payload.name ? `(${payload.name})` : payload.username ? `(${payload.username})` : "";
+            } catch {
+              return "";
+            }
+          })()}
         </button>
       </div>
       {tab === "dashboard" ? (
         <>
           {/* Alertas activas */}
           <AlertBanner />
-          {/* Error global */}
-          {globalError && (
-            <div className="bg-red-700 text-white px-4 py-2 rounded mb-2 text-center font-semibold">
-              {globalError}
-            </div>
-          )}
-          {/* Estado y ping */}
-          <div className="flex items-center justify-between">
-            <div
-              className={`text-sm font-semibold px-3 py-1 rounded-full ${
-                isOnline ? "bg-green-600 text-white" : "bg-red-600 text-white"
-              }`}
-            >
-              {isOnline ? (
-                <span className="flex items-center gap-2">
-                  <Wifi size={14} /> Online
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  <WifiOff size={14} /> Offline
-                </span>
-              )}
-            </div>
-            <div className="text-sm text-gray-300">Último ping: {lastPing}</div>
-          </div>
+          {/* Error global eliminado, solo mensaje si no hay dispositivos accesibles */}
+          {/* Estado y ping eliminado */}
 
-          {/* Panel de métricas tipo matriz (grid) para varias Raspberry Pi */}
+          {/* Panel de métricas tipo matriz (tabla) para varias Raspberry Pi */}
           {loading ? (
             <Spinner />
           ) : statusList.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {statusList.map((status, i) => (
-              <div key={status.ip || i} className="cursor-pointer" onClick={() => {
-              const device = devicesByIp[status.ip];
-              if (device) setShowChart({ deviceId: device.id, name: device.name });
-              }} title="Ver histórico de métricas">
-              <RaspberryCard status={status} />
-              </div>
-              ))}
-            </div>
+            <RaspberryTable
+              statusList={statusList}
+              logsByRaspberry={logsByRaspberry}
+              onReboot={async (ip) => {
+                if (!window.confirm(t("¿Seguro que deseas reiniciar el dispositivo {{ip}}?", { ip }))) return;
+                try {
+                  await fetch(`${RPI_BASE_URL}/reboot`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ip }),
+                  });
+                  alert(`Reboot command sent to ${ip}`);
+                } catch {
+                  alert(`No se pudo reiniciar ${ip}`);
+                }
+              }}
+            />
           ) : (
-            <div className="text-gray-400">No se pudo obtener datos.</div>
+            <></>
           )}
 
-          {/* Botones */}
-          <div className="flex flex-col items-center gap-4 mt-4">
-            {/* Botón Reboot */}
-            <button
-              onClick={rebootDevice}
-              className="w-96 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 flex items-center justify-center gap-2 transition"
-            >
-              <RefreshCcw size={18} />
-              Reboot Device
-            </button>
-
-            {/* Botón Open Remote Terminal */}
-            <button
-              onClick={toggleTerminal}
-              className="w-96 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center justify-center gap-2 transition"
-            >
-              <TerminalSquare size={18} />
-              {showTerminal ? "Close Remote Terminal" : "Open Remote Terminal"}
-            </button>
-
-            {/* Consola embebida */}
-            {showTerminal && (
-              <iframe
-                src="http://192.168.190.29:7681"
-                className="w-full h-96 mt-4 border rounded shadow"
-                title="Remote Terminal"
-              />
-            )}
-          </div>
+          {/* Botones eliminados por requerimiento */}
 
           {/* Historial de conexión por Raspberry Pi */}
-          <div className="mt-6">
-            <h2 className="text-lg font-semibold mb-2">Historial de conexión</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {logsByRaspberry.map((rasp, idx) => (
-                <RaspberryLogsCard key={rasp.ip || idx} rasp={rasp} />
-              ))}
-            </div>
-          </div>
+          {/* Historial de conexión eliminado por requerimiento */}
           {/* Modal de gráfica de métricas */}
           {showChart && (
             <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
@@ -350,10 +326,10 @@ export default function Dashboard() {
             </div>
           </>
         ) : (
-          <div className="text-red-400">No tienes permisos de administrador.</div>
+          <></>
         )
       ) : (
-        <AlertHistory />
+        <></>
       )}
     </div>
   );

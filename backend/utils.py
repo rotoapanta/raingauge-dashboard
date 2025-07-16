@@ -39,7 +39,7 @@ async def fetch_logs(ip):
     url = f"http://{ip}:8000/log"
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.get(url, timeout=3)
+            response = await client.get(url, timeout=1)
             response.raise_for_status()
             data = response.json()
             logger.info(f"Logs recibidos de {ip}")

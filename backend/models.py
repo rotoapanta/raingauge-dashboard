@@ -4,7 +4,7 @@ from datetime import datetime
 
 class Device(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    name: str
+    name: Optional[str] = None
     ip: str
     description: Optional[str] = None
     enabled: bool = True
@@ -33,3 +33,4 @@ class Alert(SQLModel, table=True):
     level: str  # e.g. "CRITICAL", "WARNING", "INFO"
     message: str
     resolved: bool = False
+    sent_to_telegram: bool = False

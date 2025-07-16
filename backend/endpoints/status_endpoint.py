@@ -20,41 +20,27 @@ def favicon():
 
 from endpoints.device_endpoint import engine
 
+
 @router.get("/status")
 async def get_status():
     import asyncio
-    import os
     import requests
-    import socket
-    # Leer la lista de IPs desde la variable de entorno
-    ips = os.getenv("RASPBERRY_IPS", "").split(",")
-    ips = [ip.strip() for ip in ips if ip.strip()]
+    from endpoints.device_endpoint import engine
+    from sqlmodel import Session, select
+    from models import Device
+    # Obtener dispositivos habilitados desde la base de datos
+    with Session(engine) as session:
+        devices = session.exec(select(Device).where(Device.enabled == True)).all()
+        ips = [d.ip for d in devices]
     print("[STATUS] Consultando las siguientes IPs:", ips)
     if not ips:
-        # Si no hay IPs, devolver estado local
-        def get_cpu_temp():
-            try:
-                with open("/sys/class/thermal/thermal_zone0/temp") as f:
-                    return round(int(f.read()) / 1000, 1)
-            except:
-                return None
-        def get_ip():
-            try:
-                return socket.gethostbyname(socket.gethostname())
-            except:
-                return "Unknown"
-        print("[STATUS] No hay IPs configuradas. Devolviendo estado local.")
-        return {
-            "status": "ok",
-            "ip": get_ip(),
-            "cpu_temp": get_cpu_temp(),
-        }
+        return []
     async def fetch_status_async(ip):
         url = f"http://{ip}:8000/status"
         print(f"[STATUS] Consultando {url}")
         try:
             loop = asyncio.get_event_loop()
-            resp = await loop.run_in_executor(None, requests.get, url)
+            resp = await loop.run_in_executor(None, lambda: requests.get(url, timeout=1))
             resp.raise_for_status()
             data = resp.json()
             data["ip"] = ip
@@ -73,15 +59,46 @@ async def get_logs():
     from endpoints.device_endpoint import engine
     from sqlmodel import Session, select
     from models import Device
+    import logging
+    logger = logging.getLogger("raingauge-backend")
     with Session(engine) as session:
         devices = session.exec(select(Device).where(Device.enabled == True)).all()
-        results = await asyncio.gather(*(fetch_logs(device.ip) for device in devices))
-        return results
+        ips = [d.ip for d in devices]
+        try:
+            results = await asyncio.gather(*(fetch_logs(ip) for ip in ips), return_exceptions=True)
+            logs_list = []
+            for ip, res in zip(ips, results):
+                if isinstance(res, Exception):
+                    logger.error(f"Error obteniendo logs de {ip}: {res}")
+                    logs_list.append({"ip": ip, "logs": {"error": str(res)}})
+                else:
+                    logs_list.append(res)
+            return logs_list
+        except Exception as e:
+            logger.error(f"Error general en /log: {e}")
+            return [{"ip": ip, "logs": {"error": "Error general en backend"}} for ip in ips]
+
+from fastapi import Request
+import requests
 
 @router.post("/reboot")
-def reboot():
-    os.system("/home/pi/Documents/Projects/raspberry-api/reboot_pi.sh")
-    return {"status": "Rebooting..."}
+def reboot(request: Request):
+    data = request.json() if request.headers.get("content-type", "").startswith("application/json") else {}
+    ip = data.get("ip")
+    print(f"[BACKEND] Petición de reboot recibida para IP: {ip}")
+    if not ip:
+        print("[BACKEND] No se proporcionó la IP en el body de la petición.")
+        return {"error": "No se proporcionó la IP"}
+    try:
+        url = f"http://{ip}:8000/reboot"
+        print(f"[BACKEND] Reenviando reboot a {url}")
+        resp = requests.post(url, timeout=5)
+        print(f"[BACKEND] Respuesta de {ip}: {resp.status_code} {resp.text}")
+        resp.raise_for_status()
+        return {"status": f"Reboot enviado a {ip}"}
+    except Exception as e:
+        print(f"[BACKEND] Error al reenviar reboot: {e}")
+        return {"error": f"No se pudo reiniciar {ip}: {str(e)}"}
 
 def get_cpu_temp():
     try:

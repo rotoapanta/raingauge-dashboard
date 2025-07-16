@@ -5,6 +5,8 @@ from models import User, Alert
 import crud
 from auth_utils import get_current_user
 from endpoints.device_endpoint import engine
+from utils import send_telegram_alert
+import asyncio
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -19,8 +21,11 @@ def admin_required(user: str = Depends(get_current_user), session: Session = Dep
     return db_user
 
 @router.post("/", response_model=User)
-def create_user(user_obj: User, session: Session = Depends(get_session), admin=Depends(admin_required)):
-    return crud.create_user(session, user_obj)
+async def create_user(user_obj: User, session: Session = Depends(get_session), admin=Depends(admin_required)):
+    created = crud.create_user(session, user_obj)
+    msg = f"El usuario {admin.username} creó el usuario {user_obj.username}"
+    await send_telegram_alert(msg)
+    return created
 
 @router.get("/", response_model=List[User])
 def read_users(session: Session = Depends(get_session), admin=Depends(admin_required)):
@@ -43,10 +48,12 @@ def read_user(user_id: int, session: Session = Depends(get_session), admin=Depen
     return user
 
 @router.put("/{user_id}", response_model=User)
-def update_user(user_id: int, user_obj: User, session: Session = Depends(get_session), admin=Depends(admin_required)):
+async def update_user(user_id: int, user_obj: User, session: Session = Depends(get_session), admin=Depends(admin_required)):
     updated = crud.update_user(session, user_id, user_obj.dict(exclude_unset=True))
     if not updated:
         raise HTTPException(status_code=404, detail="User not found")
+    msg = f"El usuario {admin.username} actualizó el usuario {user_obj.username}"
+    await send_telegram_alert(msg)
     return updated
 
 @router.delete("/{user_id}", response_model=dict)

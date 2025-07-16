@@ -2,9 +2,9 @@ services:
   backend:
     build: ./backend
     container_name: raingauge-backend 
+    env_file:
+      - ./backend/.env
     environment:
-      - TELEGRAM_BOT_TOKEN=7440678101:AAEYSmOWHGxyH94xnax3uq2DBowPDsX4KFA
-      - TELEGRAM_CHAT_ID=22779137
       - LDAP_SERVER=ldap://srvbckup.igepn.edu.ec:50000
       - LDAP_BASE_DN=DC=igepn,DC=edu,DC=ec
       - LDAP_SEARCH_ATTR=sAMAccountName
@@ -12,8 +12,6 @@ services:
     ports:
       - "8000:8000"
     restart: unless-stopped
-    env_file:
-      - ./backend/.env
 
   frontend:
     build: ./frontend
