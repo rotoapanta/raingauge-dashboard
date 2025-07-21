@@ -92,11 +92,48 @@ README.md
 
 ---
 
+## Logging & Error Handling
+
+- The backend uses Python's `logging` module for all endpoints and utilities.
+- All critical actions (create, update, delete, alert) are logged with `info`, `warning`, or `error` levels.
+- Errors are always logged and returned as clear JSON responses, never as raw 500 errors.
+- CORS is enabled globally; if you see CORS errors, check for backend exceptions in the logs.
+
+---
+
+## Telegram Alerts: Best Practices & Customization
+
+- **Safe Message Formatting:**
+  - Always check that fields are not `None` before including them in alert messages.
+  - If using Markdown, escape special characters to avoid Telegram parse errors.
+  - Example for user creation:
+    ```python
+    def escape_markdown(text):
+        if not text:
+            return "-"
+        return str(text).replace("_", "\\_").replace("*", "\\*").replace("[", "\\[").replace("]", "\\]").replace("`", "\\`")
+
+    msg = (
+        "👤🆕 *Nuevo usuario creado*\n"
+        f"• Nombre: {escape_markdown(getattr(user_obj, 'name', '-'))}\n"
+        f"• Usuario: {escape_markdown(user_obj.username)}\n"
+        f"• Rol: {escape_markdown(getattr(user_obj, 'role', '-'))}\n"
+        f"• Creado por: {escape_markdown(admin.username)}"
+    )
+    await send_telegram_alert(msg, parse_mode="MarkdownV2")
+    ```
+- **Keep It Simple:** If you want maximum reliability, use plain text messages with only essential fields.
+- **Do Not Access Data After Deletion:** Always gather all info for the alert before deleting a user or device.
+- **Test Alerts:** Use a test chat or group to verify alert formatting before deploying to production.
+
+---
+
 ## Troubleshooting
 
 - If the frontend is blank, check browser console and Docker logs.
 - If login fails, ensure you are using a valid local username and password.
 - If Telegram alerts do not arrive, verify your bot token and chat ID.
+- If you see CORS errors, check backend logs for exceptions or 500 errors.
 
 ---
 
