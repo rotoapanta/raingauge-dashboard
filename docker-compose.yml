@@ -1,9 +1,14 @@
-version: '3.9'
-
 services:
   backend:
     build: ./backend
     container_name: raingauge-backend 
+    env_file:
+      - ./backend/.env
+    environment:
+      - LDAP_SERVER=ldap://srvbckup.igepn.edu.ec:50000
+      - LDAP_BASE_DN=DC=igepn,DC=edu,DC=ec
+      - LDAP_SEARCH_ATTR=sAMAccountName
+      - JWT_SECRET=supersecretjwtkey
     ports:
       - "8000:8000"
     restart: unless-stopped

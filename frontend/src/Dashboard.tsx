@@ -1,28 +1,38 @@
-import { useEffect, useState } from "react";
-import {
-  Cpu,
-  MemoryStick,
-  HardDrive,
-  Thermometer,
-  Terminal,
-  TerminalSquare,
-  RefreshCcw,
-  Battery,
-  WifiOff,
-  Wifi,
-} from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { RPI_BASE_URL } from "./config";
+import { useTranslation } from "react-i18next";
+import "./i18n";
+import { RaspberryTable } from "./components/RaspberryTable";
+import { DeviceAdmin } from "./components/DeviceAdmin";
+import { MetricChart } from "./components/MetricChart";
+import { AlertBanner } from "./components/AlertBanner";
+import { UserAdmin } from "./components/UserAdmin";
+import { Spinner } from "./components/Spinner";
+import { LoginForm } from "./components/LoginForm";
+
+function getUserRole(): string | null {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.role || null;
+  } catch {
+    return null;
+  }
+}
 
 interface StatusData {
-  cpu: number;
-  ram: number;
-  disk: number;
-  temp: number | null;
-  hostname: string;
   ip: string;
-  battery: {
+  cpu?: number;
+  ram?: number;
+  disk?: number;
+  temp?: number | null;
+  hostname?: string;
+  battery?: {
     voltage: number;
     status: string;
   };
+  error?: string;
 }
 
 interface LogEntry {
@@ -30,198 +40,240 @@ interface LogEntry {
   status: string;
 }
 
+interface LogsByRaspberry {
+  ip: string;
+  logs: LogEntry[] | { error: string };
+}
+
+function isTokenValid(token: string | null): boolean {
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.exp * 1000 > Date.now();
+  } catch {
+    return false;
+  }
+}
+
 export default function Dashboard() {
-  const [status, setStatus] = useState<StatusData | null>(null);
+  const { t, i18n } = useTranslation();
+  const [statusList, setStatusList] = useState<StatusData[]>([]);
   const [isOnline, setIsOnline] = useState<boolean>(true);
   const [lastPing, setLastPing] = useState<string>("");
-  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [logsByRaspberry, setLogsByRaspberry] = useState<LogsByRaspberry[]>([]);
   const [showTerminal, setShowTerminal] = useState<boolean>(false);
+  const [globalError, setGlobalError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [tab, setTab] = useState<"dashboard" | "admin">("dashboard");
+  const [devices, setDevices] = useState<any[]>([]);
+  const [showChart, setShowChart] = useState<{ deviceId: number; name: string } | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => isTokenValid(localStorage.getItem("token")));
+  const [userRole, setUserRole] = useState<string | null>(() => getUserRole());
+
+  // Mapear IP a deviceId y nombre
+  const devicesByIp = useMemo(() => {
+    const map: Record<string, { id: number; name: string }> = {};
+    devices.forEach((d) => { map[d.ip] = { id: d.id, name: d.name }; });
+    return map;
+  }, [devices]);
+
+  // Obtener lista de dispositivos para mapear IP a ID
+  useEffect(() => {
+    fetch(`${RPI_BASE_URL}/devices/`).then(res => res.json()).then(setDevices);
+  }, []);
+
+  // authFetch y toggleTerminal eliminados por no usarse
 
   const fetchStatus = async () => {
     const now = new Date().toLocaleTimeString();
     setLastPing(now);
+    setLoading(true);
+    setGlobalError("");
     try {
-      const res = await fetch("http://localhost:8000/status");
-      if (!res.ok) throw new Error("Offline");
+      const res = await fetch(`${RPI_BASE_URL}/api/v1/status`);
+      if (!res.ok) throw new Error("No se pudo conectar con el backend");
       const data = await res.json();
-      setStatus(data);
+      setStatusList(Array.isArray(data) ? data : []);
       setIsOnline(true);
     } catch (err) {
       setIsOnline(false);
-      setStatus(null);
+      setStatusList([]);
+      setGlobalError("No se pudo conectar con el backend. Verifica la red o el servidor.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchLogs = async () => {
     try {
-      const res = await fetch("http://localhost:8000/log");
+      const res = await fetch(`${RPI_BASE_URL}/log`);
+      if (!res.ok) throw new Error("No se pudo conectar con el backend");
       const data = await res.json();
-      setLogs(data);
+      setLogsByRaspberry(Array.isArray(data) ? data : []);
+      // Verifica si todos los logs fallaron
+      if (Array.isArray(data) && data.length > 0) {
+        const allFail = data.every((d) => d.logs && d.logs.error);
+        const someFail = data.some((d) => d.logs && d.logs.error);
+        if (allFail) {
+          setGlobalError("No se pudo obtener el historial de logs de ningún dispositivo.");
+        } else if (someFail) {
+          setGlobalError("Algunos dispositivos no respondieron al obtener el historial de logs.");
+        } else {
+          setGlobalError("");
+        }
+      } else {
+        setGlobalError("No se pudo obtener el historial de logs.");
+      }
     } catch (err) {
-      console.error("Error fetching logs");
+      setLogsByRaspberry([]);
+      setGlobalError("No se pudo obtener el historial de logs.");
     }
   };
 
-  const rebootDevice = async () => {
-    try {
-      await fetch("http://localhost:8000/reboot", { method: "POST" });
-      alert("Reboot command sent successfully.");
-    } catch (err) {
-      alert("Failed to send reboot command.");
-    }
-  };
-
-  const toggleTerminal = () => {
-    setShowTerminal((prev) => !prev);
-  };
-
+  
   useEffect(() => {
+    let ws: WebSocket | null = null;
+    let wsActive = false;
+    let interval: NodeJS.Timeout | null = null;
+
+    function connectWS() {
+      ws = new WebSocket(`ws://${window.location.hostname}:8000/ws/status`);
+      ws.onopen = () => { wsActive = true; };
+      ws.onclose = () => { wsActive = false; };
+      ws.onerror = () => { wsActive = false; };
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.devices) setDevices(data.devices);
+          if (data.metrics) {/* podrías usarlo para actualizar gráficas en tiempo real */}
+          if (data.alerts) {/* podrías usarlo para alertas en tiempo real */}
+        } catch {}
+      };
+    }
+    connectWS();
+    // Polling de respaldo si WebSocket no está activo
     fetchStatus();
     fetchLogs();
-    const interval = setInterval(() => {
+    interval = setInterval(() => {
+      if (!wsActive) {
+        fetchStatus();
+        fetchLogs();
+      }
+    }, 10000);
+    return () => {
+      if (ws) ws.close();
+      if (interval) clearInterval(interval);
+    };
+  }, []);
+
+  // Forzar actualización al cambiar a la pestaña dashboard
+  useEffect(() => {
+    if (tab === "dashboard") {
       fetchStatus();
       fetchLogs();
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
+    }
+  }, [tab]);
+
+  // Logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+  };
+
+  if (!isAuthenticated) {
+    return <LoginForm onLogin={() => {
+      setIsAuthenticated(true);
+      setUserRole(getUserRole());
+    }} />;
+  }
 
   return (
     <div className="p-4 space-y-4">
-      {/* Estado y ping */}
-      <div className="flex items-center justify-between">
-        <div
-          className={`text-sm font-semibold px-3 py-1 rounded-full ${
-            isOnline ? "bg-green-600 text-white" : "bg-red-600 text-white"
-          }`}
+      {/* Tabs */}
+      <div className="flex gap-2 mb-4 items-center">
+        <select
+          className="bg-gray-800 text-white rounded px-2 py-1 mr-2"
+          value={i18n.language}
+          onChange={e => i18n.changeLanguage(e.target.value)}
         >
-          {isOnline ? (
-            <span className="flex items-center gap-2">
-              <Wifi size={14} /> Online
-            </span>
-          ) : (
-            <span className="flex items-center gap-2">
-              <WifiOff size={14} /> Offline
-            </span>
-          )}
-        </div>
-        <div className="text-sm text-gray-300">Último ping: {lastPing}</div>
-      </div>
-
-      {/* Panel de métricas */}
-      {status ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card icon={<Cpu />} title="CPU Usage" value={`${status.cpu}%`} />
-          <Card icon={<MemoryStick />} title="RAM Usage" value={`${status.ram}%`} />
-          <Card icon={<HardDrive />} title="Disk Usage" value={`${status.disk}%`} />
-          <Card
-            icon={<Thermometer />}
-            title="CPU Temp"
-            value={status.temp !== null ? `${status.temp} °C` : "N/A"}
-          />
-          <Card icon={<Terminal />} title="Hostname" value={status.hostname} />
-          <Card icon={<Wifi />} title="IP Address" value={status.ip} />
-          <Card
-            icon={<BatteryIcon status={status.battery.status} />}
-            title="Battery Voltage"
-            value={`${status.battery.voltage} V (${status.battery.status})`}
-          />
-        </div>
-      ) : (
-        <div className="text-gray-400">No se pudo obtener datos.</div>
-      )}
-
-      {/* Botones */}
-      <div className="flex flex-col items-center gap-4 mt-4">
-        {/* Botón Reboot */}
+          <option value="es">ES</option>
+          <option value="en">EN</option>
+        </select>
         <button
-          onClick={rebootDevice}
-          className="w-96 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 flex items-center justify-center gap-2 transition"
+          className={`px-4 py-2 rounded-t ${tab === "dashboard" ? "bg-blue-700 text-white" : "bg-gray-800 text-gray-300"}`}
+          onClick={() => setTab("dashboard")}
         >
-          <RefreshCcw size={18} />
-          Reboot Device
+          {t("Dashboard")}
         </button>
-
-        {/* Botón Open Remote Terminal */}
-        <button
-          onClick={toggleTerminal}
-          className="w-96 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center justify-center gap-2 transition"
-        >
-          <TerminalSquare size={18} />
-          {showTerminal ? "Close Remote Terminal" : "Open Remote Terminal"}
-        </button>
-
-        {/* Consola embebida */}
-        {showTerminal && (
-          <iframe
-            src="http://192.168.190.29:7681"
-            className="w-full h-96 mt-4 border rounded shadow"
-            title="Remote Terminal"
-          />
+        {userRole === "admin" && (
+          <button
+            className={`px-4 py-2 rounded-t ${tab === "admin" ? "bg-blue-700 text-white" : "bg-gray-800 text-gray-300"}`}
+            onClick={() => setTab("admin")}
+          >
+            {t("Administrar Dispositivos")}
+          </button>
         )}
+        {/* Botón de historial de alertas eliminado */}
+        <button
+          className="ml-auto px-4 py-2 rounded bg-red-700 text-white"
+          onClick={handleLogout}
+        >
+          {t("Cerrar sesión")} {(() => {
+            try {
+              const token = localStorage.getItem("token");
+              if (!token) return "";
+              const payload = JSON.parse(atob(token.split(".")[1]));
+              return payload.name ? `(${payload.name})` : payload.username ? `(${payload.username})` : "";
+            } catch {
+              return "";
+            }
+          })()}
+        </button>
       </div>
+      {tab === "dashboard" ? (
+        <>
+          {/* Alertas activas */}
+          <AlertBanner />
+          {/* Error global eliminado, solo mensaje si no hay dispositivos accesibles */}
+          {/* Estado y ping eliminado */}
 
-      {/* Historial de conexión */}
-      <div className="mt-6">
-        <h2 className="text-lg font-semibold mb-2">Historial de conexión</h2>
-        <table className="min-w-full bg-gray-900 text-white text-sm rounded shadow">
-          <thead>
-            <tr className="bg-gray-700 text-left">
-              <th className="px-4 py-2">Fecha / Hora</th>
-              <th className="px-4 py-2">Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {logs.slice().reverse().map((log, i) => (
-              <tr key={i} className="border-t border-gray-700">
-                <td className="px-4 py-2">
-                  {new Date(log.timestamp).toLocaleString()}
-                </td>
-                <td
-                  className={`px-4 py-2 font-bold ${
-                    log.status === "ONLINE" ? "text-green-400" : "text-red-400"
-                  }`}
+          {/* Panel de métricas tipo matriz (tabla) para varias Raspberry Pi */}
+          {loading ? (
+            <Spinner />
+          ) : statusList.length > 0 ? (
+            <RaspberryTable
+              statusList={statusList}
+              logsByRaspberry={logsByRaspberry}
+            />
+          ) : null}
+
+          {/* Modal de gráfica de métricas */}
+          {showChart && (
+            <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+              <div className="bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-2xl relative">
+                <button
+                  className="absolute top-2 right-2 text-white bg-red-600 rounded-full px-2 py-1 hover:bg-red-700"
+                  onClick={() => setShowChart(null)}
+                  aria-label="Cerrar"
                 >
-                  {log.status}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function Card({
-  icon,
-  title,
-  value,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  value: string;
-}) {
-  return (
-    <div className="bg-gray-800 rounded-lg shadow p-4 flex items-center gap-4">
-      <div className="text-blue-400">{icon}</div>
-      <div>
-        <h2 className="text-lg font-semibold">{title}</h2>
-        <p className="text-2xl font-bold">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-function BatteryIcon({ status }: { status: string }) {
-  const color =
-    status === "CRITICAL"
-      ? "text-red-600"
-      : status === "LOW"
-      ? "text-yellow-400"
-      : "text-green-400";
-  return (
-    <div className={color}>
-      <Battery />
+                  ✕
+                </button>
+                <h2 className="text-lg font-bold mb-4">Histórico de métricas: {showChart.name}</h2>
+                <MetricChart deviceId={showChart.deviceId} />
+              </div>
+            </div>
+          )}
+        </>
+      ) : tab === "admin" ? (
+        userRole === "admin" ? (
+          <>
+            <DeviceAdmin />
+            <div className="mt-8">
+              <UserAdmin />
+            </div>
+          </>
+        ) : null
+      ) : null}
     </div>
   );
 }
