@@ -1,5 +1,13 @@
+/**
+ * UserAdmin.tsx
+ *
+ * Componente de administración de usuarios.
+ * Permite agregar, editar, eliminar y listar usuarios con autenticación.
+ */
+
 import { useEffect, useState } from "react";
 import { RPI_BASE_URL } from "../config";
+import { useTranslation } from "react-i18next";
 
 interface User {
   id?: number;
@@ -8,6 +16,9 @@ interface User {
   role: string;
 }
 
+/**
+ * Componente para administrar usuarios (CRUD) con autenticación.
+ */
 export function UserAdmin() {
   const [users, setUsers] = useState<User[]>([]);
   const [form, setForm] = useState<Partial<User>>({ role: "user" });
@@ -16,7 +27,9 @@ export function UserAdmin() {
   const [loading, setLoading] = useState(false);
 
   const token = localStorage.getItem("token");
+  const { t } = useTranslation();
 
+  // Obtiene la lista de usuarios
   const fetchUsers = async () => {
     setLoading(true);
     setError("");
@@ -27,7 +40,7 @@ export function UserAdmin() {
       const data = await res.json();
       setUsers(data);
     } catch (e) {
-      setError("No se pudo obtener la lista de usuarios.");
+      setError(t("No se pudo obtener la lista de usuarios."));
     } finally {
       setLoading(false);
     }
@@ -37,11 +50,13 @@ export function UserAdmin() {
     fetchUsers();
   }, []);
 
+  // Maneja cambios en el formulario
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Envía el formulario para agregar o actualizar un usuario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -58,22 +73,33 @@ export function UserAdmin() {
         },
         body: JSON.stringify(form),
       });
-      if (!res.ok) throw new Error("Error al guardar el usuario");
+      if (!res.ok) {
+        let msg = t("Error al guardar el usuario.");
+        try {
+          const data = await res.json();
+          if (data && data.detail) {
+            msg = t(data.detail);
+          }
+        } catch {}
+        throw new Error(msg);
+      }
       setForm({ role: "user" });
       setEditingId(null);
       fetchUsers();
-    } catch (e) {
-      setError("Error al guardar el usuario.");
+    } catch (e: any) {
+      setError(e.message || t("Error al guardar el usuario."));
     }
   };
 
+  // Rellena el formulario para editar un usuario
   const handleEdit = (user: User) => {
     setForm(user);
     setEditingId(user.id!);
   };
 
+  // Elimina un usuario
   const handleDelete = async (id: number) => {
-    if (!window.confirm("¿Seguro que deseas eliminar este usuario?")) return;
+    if (!window.confirm(t("¿Seguro que deseas eliminar este usuario?"))) return;
     try {
       const res = await fetch(`${RPI_BASE_URL}/users/${id}`, {
         method: "DELETE",
@@ -82,13 +108,13 @@ export function UserAdmin() {
       if (!res.ok) throw new Error();
       fetchUsers();
     } catch {
-      setError("Error al eliminar el usuario.");
+      setError(t("Error al eliminar el usuario."));
     }
   };
 
   return (
     <div className="bg-gray-900 p-4 rounded shadow">
-      <h2 className="text-lg font-bold mb-4">Administrar Usuarios</h2>
+      <h2 className="text-lg font-bold mb-4">{t("Administrar Usuarios")}</h2>
       {error && <div className="text-red-400 mb-2">{error}</div>}
       <form onSubmit={handleSubmit} className="mb-4 flex flex-col gap-2">
         <div className="flex gap-2">
@@ -96,7 +122,7 @@ export function UserAdmin() {
             name="username"
             value={form.username || ""}
             onChange={handleChange}
-            placeholder="Usuario"
+            placeholder={t("Usuario")}
             className="p-2 rounded bg-gray-800 text-white flex-1"
             required
           />
@@ -104,7 +130,7 @@ export function UserAdmin() {
             name="email"
             value={form.email || ""}
             onChange={handleChange}
-            placeholder="Email"
+            placeholder={t("Email")}
             className="p-2 rounded bg-gray-800 text-white flex-1"
           />
           <select
@@ -113,15 +139,15 @@ export function UserAdmin() {
             onChange={handleChange}
             className="p-2 rounded bg-gray-800 text-white"
           >
-            <option value="user">Usuario</option>
-            <option value="admin">Administrador</option>
+            <option value="user">{t("Usuario")}</option>
+            <option value="admin">{t("Administrador")}</option>
           </select>
         </div>
         <button
           type="submit"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-40"
         >
-          {editingId ? "Actualizar" : "Agregar"}
+          {editingId ? t("Actualizar") : t("Agregar")}
         </button>
         {editingId && (
           <button
@@ -132,21 +158,21 @@ export function UserAdmin() {
               setEditingId(null);
             }}
           >
-            Cancelar edición
+            {t("Cancelar edición")}
           </button>
         )}
       </form>
-      <h3 className="font-semibold mb-2">Lista de usuarios</h3>
+      <h3 className="font-semibold mb-2">{t("Lista de usuarios")}</h3>
       {loading ? (
-        <div className="text-gray-400">Cargando...</div>
+        <div className="text-gray-400">{t("Cargando...")}</div>
       ) : (
         <table className="min-w-full text-white text-sm rounded shadow">
           <thead>
             <tr className="bg-gray-700 text-left">
-              <th className="px-2 py-1">Usuario</th>
-              <th className="px-2 py-1">Email</th>
-              <th className="px-2 py-1">Rol</th>
-              <th className="px-2 py-1">Acciones</th>
+              <th className="px-2 py-1">{t("Usuario")}</th>
+              <th className="px-2 py-1">{t("Email")}</th>
+              <th className="px-2 py-1">{t("Rol")}</th>
+              <th className="px-2 py-1">{t("Acciones")}</th>
             </tr>
           </thead>
           <tbody>
@@ -154,19 +180,19 @@ export function UserAdmin() {
               <tr key={u.id} className="border-t border-gray-700">
                 <td className="px-2 py-1">{u.username}</td>
                 <td className="px-2 py-1">{u.email}</td>
-                <td className="px-2 py-1">{u.role === "admin" ? "Administrador" : "Usuario"}</td>
+                <td className="px-2 py-1">{u.role === "admin" ? t("Administrador") : t("Usuario")}</td>
                 <td className="px-2 py-1 flex gap-2">
                   <button
                     className="text-blue-400 underline"
                     onClick={() => handleEdit(u)}
                   >
-                    Editar
+                    {t("Editar")}
                   </button>
                   <button
                     className="text-red-400 underline"
                     onClick={() => handleDelete(u.id!)}
                   >
-                    Eliminar
+                    {t("Eliminar")}
                   </button>
                 </td>
               </tr>

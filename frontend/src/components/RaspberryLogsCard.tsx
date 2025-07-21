@@ -1,3 +1,10 @@
+/**
+ * RaspberryLogsCard.tsx
+ *
+ * Componente que muestra el historial de logs de conexión de una Raspberry Pi.
+ * Presenta los estados ONLINE/OFFLINE en una tabla o un mensaje de error si no hay datos.
+ */
+
 interface LogEntry {
   timestamp: string;
   status: string;
@@ -8,7 +15,14 @@ interface LogsByRaspberry {
   logs: LogEntry[] | { error: string };
 }
 
-export function RaspberryLogsCard({ rasp }: { rasp: LogsByRaspberry }) {
+interface RaspberryLogsCardProps {
+  rasp: LogsByRaspberry;
+}
+
+/**
+ * Muestra una tarjeta con el historial de logs de conexión de una Raspberry Pi.
+ */
+export function RaspberryLogsCard({ rasp }: RaspberryLogsCardProps) {
   return (
     <div className="bg-gray-900 rounded-lg shadow p-4">
       <div className="font-mono text-blue-300 mb-2">{rasp.ip}</div>

@@ -1,17 +1,23 @@
+/**
+ * Shared.tsx
+ *
+ * Componentes reutilizables para tarjetas de métricas y visualización de batería.
+ */
+
 import { Battery } from "lucide-react";
 import React from "react";
 
-export function Card({
-  icon,
-  title,
-  value,
-  small = false,
-}: {
+interface CardProps {
   icon: React.ReactNode;
   title: string;
   value: string;
   small?: boolean;
-}) {
+}
+
+/**
+ * Componente de tarjeta para mostrar una métrica o valor con icono y título.
+ */
+export function Card({ icon, title, value, small = false }: CardProps) {
   return (
     <div
       className={`flex items-center gap-2 ${small ? "bg-gray-900 rounded p-2" : "bg-gray-800 rounded-lg shadow p-4"}`}
@@ -28,7 +34,14 @@ export function Card({
   );
 }
 
-export function BatteryIcon({ status }: { status: string }) {
+interface BatteryIconProps {
+  status: string;
+}
+
+/**
+ * Icono de batería con color según el estado (CRITICAL, LOW, OK).
+ */
+export function BatteryIcon({ status }: BatteryIconProps) {
   const color =
     status === "CRITICAL"
       ? "text-red-600"

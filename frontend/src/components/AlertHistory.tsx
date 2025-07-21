@@ -1,3 +1,10 @@
+/**
+ * AlertHistory.tsx
+ *
+ * Componente que muestra el historial de alertas del sistema.
+ * Permite marcar alertas como resueltas y consulta el backend al cargar.
+ */
+
 import { useEffect, useState } from "react";
 import { RPI_BASE_URL } from "../config";
 
@@ -10,11 +17,15 @@ interface Alert {
   resolved: boolean;
 }
 
+/**
+ * Muestra una tabla con el historial de alertas y permite resolverlas.
+ */
 export function AlertHistory() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Obtiene el historial de alertas del backend
   const fetchAlerts = () => {
     setLoading(true);
     setError("");
@@ -29,6 +40,7 @@ export function AlertHistory() {
     fetchAlerts();
   }, []);
 
+  // Marca una alerta como resuelta
   const handleResolve = async (id: number) => {
     if (!window.confirm("¿Marcar esta alerta como resuelta?")) return;
     try {

@@ -1,3 +1,10 @@
+/**
+ * RaspberryTable.tsx
+ *
+ * Componente que muestra una tabla resumen de todas las Raspberry Pi y sus métricas principales.
+ * Incluye estado, CPU, RAM, temperatura, hostname, batería, uptime y discos.
+ */
+
 import React from "react";
 import {
   Activity,
@@ -8,9 +15,9 @@ import {
   BatteryFull,
   CheckCircle,
   XCircle,
-  FolderOpen,
-  RotateCcw
+  FolderOpen
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface DiskInfo {
   total: number;
@@ -56,32 +63,32 @@ interface LogsByRaspberry {
 
 interface RaspberryTableProps {
   statusList: StatusData[];
-  onReboot: (ip: string) => void;
   logsByRaspberry: LogsByRaspberry[];
 }
 
-export const RaspberryTable: React.FC<RaspberryTableProps> = ({ statusList, onReboot, logsByRaspberry }) => {
+/**
+ * Tabla resumen de todas las Raspberry Pi y sus métricas principales.
+ */
+export const RaspberryTable: React.FC<RaspberryTableProps> = ({ statusList, logsByRaspberry }) => {
+  const { t } = useTranslation();
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-gray-900 rounded-lg shadow">
         <thead>
           <tr className="text-white text-center">
-            <th className="px-2 py-2"><Server className="inline" /> IP</th>
-            <th className="px-2 py-2"><CheckCircle className="inline" /> Estado</th>
-            <th className="px-2 py-2"><Activity className="inline" /> CPU (%)</th>
-            <th className="px-2 py-2"><Gauge className="inline" /> RAM (%)</th>
-            <th className="px-2 py-2"><HardDrive className="inline" /> Disco (%)</th>
-            <th className="px-2 py-2"><Flame className="inline" /> Temp (°C)</th>
-            <th className="px-2 py-2"><Server className="inline" /> Hostname</th>
-            <th className="px-2 py-2"><BatteryFull className="inline" /> Batería</th>
-            <th className="px-2 py-2">Uptime</th>
-            <th className="px-2 py-2"><FolderOpen className="inline" /> Discos</th>
-            <th className="px-2 py-2"><RotateCcw className="inline" /> Reboot</th>
+            <th className="px-2 py-2"><Server className="inline" /> {t("IP")}</th>
+            <th className="px-2 py-2"><CheckCircle className="inline" /> {t("Estado")}</th>
+            <th className="px-2 py-2"><Activity className="inline" /> {t("CPU (%)")}</th>
+            <th className="px-2 py-2"><Gauge className="inline" /> {t("RAM (%)")}</th>
+            <th className="px-2 py-2"><Flame className="inline" /> {t("Temp (°C)")}</th>
+            <th className="px-2 py-2"><Server className="inline" /> {t("Hostname")}</th>
+            <th className="px-2 py-2"><BatteryFull className="inline" /> {t("Batería")}</th>
+            <th className="px-2 py-2">{t("Uptime")}</th>
+            <th className="px-2 py-2"><FolderOpen className="inline" /> {t("Discos")}</th>
           </tr>
         </thead>
         <tbody>
-          {statusList.map((status, idx) => {
-            return (
+          {statusList.map((status, idx) => (
             <tr key={status.ip || idx} className="text-center text-gray-200 hover:bg-gray-800 transition">
               <td className="px-2 py-1 font-mono">{status.ip}</td>
               <td className="px-2 py-1">
@@ -97,8 +104,7 @@ export const RaspberryTable: React.FC<RaspberryTableProps> = ({ statusList, onRe
               </td>
               <td className="px-2 py-1">{status.cpu !== undefined ? status.cpu : "-"}</td>
               <td className="px-2 py-1">{status.ram !== undefined ? status.ram : "-"}</td>
-              <td className="px-2 py-1">{status.disk !== undefined ? status.disk : "-"}</td>
-              <td className="px-2 py-1">{status.temp !== undefined && status.temp !== null ? status.temp : "-"}</td>
+              <td className="px-2 py-1">{status.temp !== undefined && status.temp !== null ? `${status.temp}°C` : "-"}</td>
               <td className="px-2 py-1">{status.hostname || "-"}</td>
               <td className="px-2 py-1">
                 {status.battery ? `${status.battery.voltage}V (${status.battery.status})` : "-"}
@@ -131,20 +137,8 @@ export const RaspberryTable: React.FC<RaspberryTableProps> = ({ statusList, onRe
                 )}
                 {!(status.disk_info || (status.usb && status.usb.length > 0)) && "-"}
               </td>
-              <td className="px-2 py-1">
-                <button
-                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
-                  onClick={() => onReboot(status.ip)}
-                  disabled={!!status.error}
-                  title={status.error ? "No disponible" : "Reiniciar Raspberry Pi"}
-                >
-                  <RotateCcw size={16} className="inline mr-1" />
-                  Reboot
-                </button>
-              </td>
-              </tr>
-          );
-          })}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

@@ -1,3 +1,10 @@
+/**
+ * DeviceAdmin.tsx
+ *
+ * Componente de administración de dispositivos.
+ * Permite agregar, editar, eliminar y listar dispositivos con autenticación.
+ */
+
 import { useEffect, useState } from "react";
 import { RPI_BASE_URL } from "../config";
 import { useTranslation } from "react-i18next";
@@ -10,6 +17,9 @@ interface Device {
   enabled: boolean;
 }
 
+/**
+ * Componente para administrar dispositivos (CRUD) con autenticación.
+ */
 export function DeviceAdmin() {
   const [devices, setDevices] = useState<Device[]>([]);
   const [form, setForm] = useState<Partial<Device>>({ enabled: true });
@@ -19,7 +29,7 @@ export function DeviceAdmin() {
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
 
-  // Función para agregar el token a las peticiones protegidas
+  // Realiza peticiones autenticadas usando el token JWT
   function authFetch(input: RequestInfo, init: RequestInit = {}) {
     const token = localStorage.getItem("token");
     return fetch(input, {
@@ -31,6 +41,7 @@ export function DeviceAdmin() {
     });
   }
 
+  // Obtiene la lista de dispositivos
   const fetchDevices = async () => {
     setLoading(true);
     try {
@@ -48,6 +59,7 @@ export function DeviceAdmin() {
     fetchDevices();
   }, []);
 
+  // Maneja cambios en el formulario
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -56,6 +68,7 @@ export function DeviceAdmin() {
     }));
   };
 
+  // Envía el formulario para agregar o actualizar un dispositivo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -70,22 +83,33 @@ export function DeviceAdmin() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      if (!res.ok) throw new Error(t("Error al guardar el dispositivo."));
+      if (!res.ok) {
+        let msg = t("Error al guardar el dispositivo.");
+        try {
+          const data = await res.json();
+          if (data && data.detail) {
+            msg = t(data.detail);
+          }
+        } catch {}
+        throw new Error(msg);
+      }
       setForm({ enabled: true });
       setEditingId(null);
       setSuccess(editingId ? t("Dispositivo actualizado correctamente.") : t("Dispositivo agregado correctamente."));
       setTimeout(() => setSuccess(""), 2000);
       fetchDevices();
-    } catch (e) {
-      setError(t("Error al guardar el dispositivo."));
+    } catch (e: any) {
+      setError(e.message || t("Error al guardar el dispositivo."));
     }
   };
 
+  // Rellena el formulario para editar un dispositivo
   const handleEdit = (device: Device) => {
     setForm(device);
     setEditingId(device.id!);
   };
 
+  // Elimina un dispositivo
   const handleDelete = async (id: number) => {
     if (!window.confirm(t("¿Seguro que deseas eliminar este dispositivo?"))) return;
     setSuccess("");

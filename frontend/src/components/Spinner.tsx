@@ -1,3 +1,12 @@
+/**
+ * Spinner.tsx
+ *
+ * Componente visual de carga (spinner) para indicar que los datos están siendo procesados o cargados.
+ */
+
+/**
+ * Muestra un spinner animado y un mensaje de carga.
+ */
 export function Spinner() {
   return (
     <div className="flex flex-col items-center justify-center py-8" aria-label="Cargando...">

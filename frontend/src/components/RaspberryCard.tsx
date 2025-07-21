@@ -1,4 +1,11 @@
-import { Cpu, MemoryStick, HardDrive, Thermometer, Terminal, Battery } from "lucide-react";
+/**
+ * RaspberryCard.tsx
+ *
+ * Componente que muestra el estado resumido de una Raspberry Pi en formato de tarjeta.
+ * Incluye métricas de CPU, RAM, disco, temperatura, hostname y batería.
+ */
+
+import { Cpu, MemoryStick, HardDrive, Thermometer, Terminal } from "lucide-react";
 import { Card, BatteryIcon } from "./Shared";
 
 interface StatusData {
@@ -15,7 +22,14 @@ interface StatusData {
   error?: string;
 }
 
-export function RaspberryCard({ status }: { status: StatusData }) {
+interface RaspberryCardProps {
+  status: StatusData;
+}
+
+/**
+ * Muestra una tarjeta con el estado y métricas de una Raspberry Pi.
+ */
+export function RaspberryCard({ status }: RaspberryCardProps) {
   return (
     <div className="bg-gray-800 rounded-lg shadow p-4 flex flex-col gap-2">
       <div className="flex items-center justify-between mb-2">
@@ -30,7 +44,14 @@ export function RaspberryCard({ status }: { status: StatusData }) {
         <Card icon={<HardDrive />} title="Disco" value={status.disk !== undefined ? `${status.disk}%` : "-"} small />
         <Card icon={<Thermometer />} title="Temp" value={status.temp !== undefined ? `${status.temp}°C` : "-"} small />
         <Card icon={<Terminal />} title="Hostname" value={status.hostname || "-"} small />
-        <Card icon={<BatteryIcon status={status.battery && typeof status.battery.status === 'string' ? status.battery.status : "N/A"} />} title="Batería" value={status.battery && typeof status.battery.voltage === 'number' && typeof status.battery.status === 'string' ? `${status.battery.voltage}V (${status.battery.status})` : "N/A"} small />
+        <Card
+          icon={<BatteryIcon status={status.battery && typeof status.battery.status === 'string' ? status.battery.status : "N/A"} />}
+          title="Batería"
+          value={status.battery && typeof status.battery.voltage === 'number' && typeof status.battery.status === 'string'
+            ? `${status.battery.voltage}V (${status.battery.status})`
+            : "N/A"}
+          small
+        />
       </div>
       {status.error && (
         <div className="text-xs text-red-400 mt-2">No disponible</div>

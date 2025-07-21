@@ -1,22 +1,37 @@
+/**
+ * LoginForm.tsx
+ *
+ * Componente de formulario de inicio de sesión.
+ * Permite autenticarse con usuario y contraseña, mostrando errores y feedback visual.
+ */
+
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RPI_BASE_URL } from "../config";
 
-export function LoginForm({ onLogin }: { onLogin: () => void }) {
-  const { t, i18n } = useTranslation();
+interface LoginFormProps {
+  onLogin: () => void;
+}
+
+/**
+ * Formulario de login con autenticación local.
+ * Guarda el token JWT en localStorage al autenticarse correctamente.
+ */
+export function LoginForm({ onLogin }: LoginFormProps) {
+  const { t } = useTranslation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<"ad" | "local">("ad");
 
+  // Maneja el envío del formulario de login
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      const endpoint = mode === "ad" ? "/auth/login" : "/auth/local-login";
+      const endpoint = "/auth/local-login";
       const res = await fetch(`${RPI_BASE_URL}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -36,20 +51,10 @@ export function LoginForm({ onLogin }: { onLogin: () => void }) {
   return (
     <form onSubmit={handleSubmit} className="bg-gray-900 p-6 rounded shadow max-w-sm mx-auto mt-12 flex flex-col gap-4">
       <h2 className="text-lg font-bold mb-2">{t("Iniciar sesión")}</h2>
-      <div className="flex gap-2 mb-2">
-        <label className="flex items-center gap-1">
-          <input type="radio" name="mode" value="ad" checked={mode === "ad"} onChange={() => setMode("ad")}/>
-          AD
-        </label>
-        <label className="flex items-center gap-1">
-          <input type="radio" name="mode" value="local" checked={mode === "local"} onChange={() => setMode("local")}/>
-          Local
-        </label>
-      </div>
       {error && <div className="text-red-400">{error}</div>}
       <input
         type="text"
-        placeholder={mode === "ad" ? t("Usuario AD") : t("Usuario")}
+        placeholder={t("Usuario")}
         value={username}
         onChange={e => setUsername(e.target.value)}
         className="p-2 rounded bg-gray-800 text-white"

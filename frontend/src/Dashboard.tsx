@@ -1,25 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { RPI_BASE_URL } from "./config";
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import "./i18n";
-import { RaspberryCard } from "./components/RaspberryCard";
 import { RaspberryTable } from "./components/RaspberryTable";
-import { RaspberryLogsCard } from "./components/RaspberryLogsCard";
 import { DeviceAdmin } from "./components/DeviceAdmin";
 import { MetricChart } from "./components/MetricChart";
 import { AlertBanner } from "./components/AlertBanner";
-// import { AlertHistory } from "./components/AlertHistory";
 import { UserAdmin } from "./components/UserAdmin";
-import { Card, BatteryIcon } from "./components/Shared";
 import { Spinner } from "./components/Spinner";
 import { LoginForm } from "./components/LoginForm";
-import {
-  TerminalSquare,
-  RefreshCcw,
-  WifiOff,
-  Wifi,
-} from "lucide-react";
 
 function getUserRole(): string | null {
   try {
@@ -93,17 +82,7 @@ export default function Dashboard() {
     fetch(`${RPI_BASE_URL}/devices/`).then(res => res.json()).then(setDevices);
   }, []);
 
-  // Función para agregar el token a las peticiones protegidas
-  function authFetch(input: RequestInfo, init: RequestInit = {}) {
-    const token = localStorage.getItem("token");
-    return fetch(input, {
-      ...init,
-      headers: {
-        ...(init.headers || {}),
-        Authorization: token ? `Bearer ${token}` : "",
-      },
-    });
-  }
+  // authFetch y toggleTerminal eliminados por no usarse
 
   const fetchStatus = async () => {
     const now = new Date().toLocaleTimeString();
@@ -111,7 +90,7 @@ export default function Dashboard() {
     setLoading(true);
     setGlobalError("");
     try {
-      const res = await fetch(`${RPI_BASE_URL}/status`);
+      const res = await fetch(`${RPI_BASE_URL}/api/v1/status`);
       if (!res.ok) throw new Error("No se pudo conectar con el backend");
       const data = await res.json();
       setStatusList(Array.isArray(data) ? data : []);
@@ -151,20 +130,7 @@ export default function Dashboard() {
     }
   };
 
-  // Peticiones protegidas
-  const rebootDevice = async () => {
-    try {
-      await authFetch(`${RPI_BASE_URL}/reboot`, { method: "POST" });
-      alert("Reboot command sent successfully.");
-    } catch (err) {
-      alert("Failed to send reboot command.");
-    }
-  };
-
-  const toggleTerminal = () => {
-    setShowTerminal((prev) => !prev);
-  };
-
+  
   useEffect(() => {
     let ws: WebSocket | null = null;
     let wsActive = false;
@@ -278,28 +244,9 @@ export default function Dashboard() {
             <RaspberryTable
               statusList={statusList}
               logsByRaspberry={logsByRaspberry}
-              onReboot={async (ip) => {
-                if (!window.confirm(t("¿Seguro que deseas reiniciar el dispositivo {{ip}}?", { ip }))) return;
-                try {
-                  await fetch(`${RPI_BASE_URL}/reboot`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ ip }),
-                  });
-                  alert(`Reboot command sent to ${ip}`);
-                } catch {
-                  alert(`No se pudo reiniciar ${ip}`);
-                }
-              }}
             />
-          ) : (
-            <></>
-          )}
+          ) : null}
 
-          {/* Botones eliminados por requerimiento */}
-
-          {/* Historial de conexión por Raspberry Pi */}
-          {/* Historial de conexión eliminado por requerimiento */}
           {/* Modal de gráfica de métricas */}
           {showChart && (
             <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
@@ -325,14 +272,8 @@ export default function Dashboard() {
               <UserAdmin />
             </div>
           </>
-        ) : (
-          <></>
-        )
-      ) : (
-        <></>
-      )}
+        ) : null
+      ) : null}
     </div>
   );
 }
-
-// Card y BatteryIcon ahora están en ./components/Shared

@@ -1,26 +1,27 @@
 # Raingauge Dashboard
 
-Dashboard centralizado para monitoreo en tiempo real de múltiples Raspberry Pi, con autenticación Active Directory, alertas, métricas históricas, WebSockets, internacionalización y panel de administración avanzado.
+Centralized dashboard for real-time monitoring and management of multiple Raspberry Pi devices. Includes user and device administration, historical metrics, real-time updates via WebSockets, internationalization (ES/EN), and advanced alerting.
 
 ---
 
-## Estructura del Proyecto
+## Project Structure
 
 ```
 backend/
-  ├── models.py
-  ├── crud.py
   ├── main.py
-  ├── requirements.txt
+  ├── crud.py
+  ├── models.py
   ├── endpoints/
+  ├── services/
+  ├── utils.py
   ├── auth_utils.py
-  └── ...
+  ├── ...
 frontend/
   ├── src/
   │   ├── Dashboard.tsx
-  │   ├── i18n.ts
+  │   ├── components/
   │   ├── locales/
-  │   └── components/
+  │   └── ...
   ├── package.json
   └── ...
 docker-compose.yml
@@ -29,77 +30,83 @@ README.md
 
 ---
 
-## Requisitos
+## Requirements
 
-- Docker y Docker Compose
-- Acceso a Active Directory/LDAP
-- Node.js y npm (solo para desarrollo local del frontend)
+- Docker and Docker Compose
+- Node.js and npm (for local frontend development)
 
 ---
 
-## Instalación y Despliegue
+## Installation & Deployment
 
-1. Clona el repositorio y entra al directorio.
-2. Instala las dependencias de frontend si desarrollas localmente:
+1. Clone the repository and enter the directory.
+2. (Optional) For local frontend development:
    ```bash
    cd frontend
    npm install
    ```
-3. Configura las variables de entorno necesarias en `docker-compose.yml`:
-   - TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
-   - LDAP_SERVER, LDAP_BASE_DN, LDAP_SEARCH_ATTR, JWT_SECRET
-4. Construye y levanta los servicios:
+3. Configure environment variables in `backend/.env` and `frontend/.env` as needed (see sample files).
+4. Build and start the services:
    ```bash
    docker-compose build
    docker-compose up -d
    ```
-5. Accede al dashboard en [http://localhost](http://localhost).
+5. Access the dashboard at [http://localhost](http://localhost).
 
 ---
 
-## Uso
+## Usage
 
-- Inicia sesión con tu usuario y contraseña de Active Directory.
-- Monitorea el estado de tus Raspberry Pi en tiempo real.
-- Administra dispositivos, usuarios y alertas desde el panel de administración.
-- Cambia el idioma de la interfaz desde el selector (ES/EN).
-- Recibe alertas críticas en Telegram automáticamente.
-
----
-
-## Configuración avanzada
-
-- **Active Directory:** Edita las variables LDAP en `docker-compose.yml`.
-- **Notificaciones Telegram:** Configura el bot y el chat ID en `docker-compose.yml`.
-- **Internacionalización:** Agrega archivos en `frontend/src/locales/`.
-- **WebSockets:** El dashboard se actualiza en tiempo real sin recargar.
+- Log in with your local user credentials (created by an admin).
+- Monitor the status of all Raspberry Pi devices in real time.
+- Administer devices and users from the admin panel.
+- Switch interface language (ES/EN) from the language selector.
+- Receive critical alerts via Telegram (if configured).
 
 ---
 
-## Seguridad y roles
+## Features
 
-- Solo usuarios autenticados pueden acceder al dashboard.
-- Solo administradores pueden gestionar usuarios y dispositivos.
-- Los roles se asignan desde el panel de administración.
+- **Device Monitoring:** Real-time status, metrics, and logs for each device.
+- **User & Device Admin:** Add, edit, and remove users and devices. Enforced uniqueness for usernames and device IPs.
+- **Internationalization:** Fully translated interface (Spanish/English). Easily extendable.
+- **WebSockets:** Live updates for device status and alerts.
+- **Alerting:** Telegram integration for critical notifications.
+- **Role-based Access:** Only admins can manage users/devices.
+
+---
+
+## Advanced Configuration
+
+- **Telegram Alerts:** Set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in `backend/.env`.
+- **Internationalization:** Add/modify translation files in `frontend/src/locales/`.
+- **WebSockets:** Real-time updates require open WebSocket ports.
+
+---
+
+## Security & Roles
+
+- Only authenticated users can access the dashboard.
+- Only admins can manage users and devices.
+- Roles are assigned via the admin panel.
 
 ---
 
 ## Troubleshooting
 
-- Si el frontend muestra pantalla en blanco, revisa la consola del navegador y los logs de Docker.
-- Si el login falla, asegúrate de usar solo el nombre de usuario de AD (no el correo).
-- Si no recibes alertas en Telegram, revisa el token y el chat ID.
+- If the frontend is blank, check browser console and Docker logs.
+- If login fails, ensure you are using a valid local username and password.
+- If Telegram alerts do not arrive, verify your bot token and chat ID.
 
 ---
 
-## Créditos y licencia
+## License
 
-Desarrollado por rotoapanta.  
-Licencia MIT.
+MIT License. Developed by rotoapanta.
 
 ---
 
-## Contribuir
+## Contributing
 
-Pull requests y sugerencias son bienvenidas.  
-Consulta la documentación en la carpeta `docs/` para detalles avanzados.
+Pull requests and suggestions are welcome!
+See the `docs/` folder for advanced documentation and contribution guidelines.
