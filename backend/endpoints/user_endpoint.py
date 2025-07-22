@@ -44,7 +44,7 @@ async def create_user(user_obj: User, session: Session = Depends(get_session), a
     except Exception as e:
         import logging
         logging.error(f"Error en create_user: {e}")
-        raise HTTPException(status_code=400, detail=f"Error al crear usuario: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
     from utils import escape_markdown
     msg = (
         "👤🆕 *Nuevo usuario creado*\n"
