@@ -146,33 +146,26 @@ export default function Dashboard() {
         try {
           const data = JSON.parse(event.data);
           if (data.devices) setDevices(data.devices);
-          if (data.metrics) {/* podrías usarlo para actualizar gráficas en tiempo real */}
-          if (data.alerts) {/* podrías usarlo para alertas en tiempo real */}
+          if (data.metrics) {/* could be used for real-time chart updates */}
+          if (data.alerts) {/* could be used for real-time alerts */}
         } catch {}
       };
     }
-    connectWS();
-    // Polling de respaldo si WebSocket no está activo
-    fetchStatus();
-    fetchLogs();
-    interval = setInterval(() => {
-      if (!wsActive) {
+
+    if (tab === "dashboard") {
+      connectWS();
+      fetchStatus();
+      fetchLogs();
+      interval = setInterval(() => {
         fetchStatus();
         fetchLogs();
-      }
-    }, 10000);
+      }, 10000);
+    }
+
     return () => {
       if (ws) ws.close();
       if (interval) clearInterval(interval);
     };
-  }, []);
-
-  // Forzar actualización al cambiar a la pestaña dashboard
-  useEffect(() => {
-    if (tab === "dashboard") {
-      fetchStatus();
-      fetchLogs();
-    }
   }, [tab]);
 
   // Logout

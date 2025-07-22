@@ -1,7 +1,7 @@
 """
 promote_admin.py
 
-Script utilitario para promover un usuario existente a rol de administrador en la base de datos de Raingauge Dashboard.
+Utility script to promote an existing user to admin role in the Raingauge Dashboard database.
 """
 
 from sqlmodel import Session, create_engine, select
@@ -13,22 +13,25 @@ engine = create_engine(DATABASE_URL)
 
 def promote_to_admin(session: Session, username: str) -> None:
     """
-    Promueve un usuario existente a rol de administrador.
+    Promote an existing user to admin role.
     Args:
-        session (Session): Sesión de base de datos.
-        username (str): Nombre de usuario a promover.
+        session (Session): Database session.
+        username (str): Username to promote.
     """
     user = session.exec(select(User).where(User.username == username)).first()
     if not user:
-        print(f"Usuario '{username}' no encontrado en la base de datos.")
+        print(f"User '{username}' not found in the database.")
     else:
         user.role = "admin"
         session.add(user)
         session.commit()
-        print(f"Usuario '{username}' ahora es admin.")
+        print(f"User '{username}' is now admin.")
 
 def main() -> None:
-    username = input("Usuario a promover a admin: ").strip()
+    """
+    Main entry point for the script. Handles user promotion.
+    """
+    username = input("Username to promote to admin: ").strip()
     with Session(engine) as session:
         promote_to_admin(session, username)
 

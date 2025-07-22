@@ -1,9 +1,9 @@
 """
 crud.py
 
-Operaciones CRUD para el backend de Raingauge Dashboard.
-Incluye funciones para crear, leer, actualizar y eliminar dispositivos, usuarios, métricas e alertas en la base de datos.
-Todas las funciones usan sesiones SQLModel y validan unicidad donde corresponde.
+CRUD operations for the Raingauge Dashboard backend.
+Includes functions to create, read, update, and delete devices, users, metrics, and alerts in the database.
+All functions use SQLModel sessions and validate uniqueness where appropriate.
 """
 
 from sqlmodel import Session, select
@@ -13,24 +13,24 @@ from datetime import datetime
 
 def get_session(engine) -> Session:
     """
-    Obtiene una nueva sesión SQLModel para el engine dado.
+    Get a new SQLModel session for the given engine.
     """
     return Session(engine)
 
 def create_device(session: Session, device: Device) -> Device:
     """
-    Crea un nuevo dispositivo en la base de datos, asegurando que la IP sea única.
+    Create a new device in the database, ensuring the IP is unique.
     Args:
-        session (Session): Sesión de base de datos.
-        device (Device): Objeto dispositivo a crear.
+        session (Session): Database session.
+        device (Device): Device object to create.
     Returns:
-        Device: Dispositivo creado.
+        Device: Created device.
     Raises:
-        ValueError: Si ya existe un dispositivo con la misma IP.
+        ValueError: If a device with the same IP already exists.
     """
     exists = session.exec(select(Device).where(Device.ip == device.ip)).first()
     if exists:
-        raise ValueError("Ya existe un dispositivo con esa IP")
+        raise ValueError("A device with that IP already exists")
     session.add(device)
     session.commit()
     session.refresh(device)
@@ -38,25 +38,25 @@ def create_device(session: Session, device: Device) -> Device:
 
 def get_devices(session: Session) -> List[Device]:
     """
-    Devuelve una lista de todos los dispositivos en la base de datos.
+    Return a list of all devices in the database.
     """
     return session.exec(select(Device)).all()
 
 def get_device(session: Session, device_id: int) -> Optional[Device]:
     """
-    Devuelve un dispositivo por su ID, o None si no existe.
+    Return a device by its ID, or None if it does not exist.
     """
     return session.get(Device, device_id)
 
 def update_device(session: Session, device_id: int, device_data: Dict[str, Any]) -> Optional[Device]:
     """
-    Actualiza un dispositivo por su ID con los datos proporcionados.
+    Update a device by its ID with the provided data.
     Args:
-        session (Session): Sesión de base de datos.
-        device_id (int): ID del dispositivo.
-        device_data (dict): Datos a actualizar.
+        session (Session): Database session.
+        device_id (int): Device ID.
+        device_data (dict): Data to update.
     Returns:
-        Optional[Device]: Dispositivo actualizado o None si no existe.
+        Optional[Device]: Updated device or None if not found.
     """
     device = session.get(Device, device_id)
     if not device:
@@ -70,12 +70,12 @@ def update_device(session: Session, device_id: int, device_data: Dict[str, Any])
 
 def delete_device(session: Session, device_id: int) -> bool:
     """
-    Elimina un dispositivo por su ID.
+    Delete a device by its ID.
     Args:
-        session (Session): Sesión de base de datos.
-        device_id (int): ID del dispositivo.
+        session (Session): Database session.
+        device_id (int): Device ID.
     Returns:
-        bool: True si se eliminó, False si no existe.
+        bool: True if deleted, False if not found.
     """
     device = session.get(Device, device_id)
     if not device:
@@ -88,18 +88,18 @@ def delete_device(session: Session, device_id: int) -> bool:
 
 def create_user(session: Session, user: User) -> User:
     """
-    Crea un nuevo usuario en la base de datos, asegurando que el nombre de usuario sea único.
+    Create a new user in the database, ensuring the username is unique.
     Args:
-        session (Session): Sesión de base de datos.
-        user (User): Objeto usuario a crear.
+        session (Session): Database session.
+        user (User): User object to create.
     Returns:
-        User: Usuario creado.
+        User: Created user.
     Raises:
-        ValueError: Si ya existe un usuario con el mismo nombre de usuario.
+        ValueError: If a user with the same username already exists.
     """
     exists = session.exec(select(User).where(User.username == user.username)).first()
     if exists:
-        raise ValueError("Ya existe un usuario con ese nombre de usuario")
+        raise ValueError("A user with that username already exists")
     session.add(user)
     session.commit()
     session.refresh(user)
@@ -107,25 +107,25 @@ def create_user(session: Session, user: User) -> User:
 
 def get_users(session: Session) -> List[User]:
     """
-    Devuelve una lista de todos los usuarios en la base de datos.
+    Return a list of all users in the database.
     """
     return session.exec(select(User)).all()
 
 def get_user(session: Session, user_id: int) -> Optional[User]:
     """
-    Devuelve un usuario por su ID, o None si no existe.
+    Return a user by their ID, or None if not found.
     """
     return session.get(User, user_id)
 
 def update_user(session: Session, user_id: int, user_data: Dict[str, Any]) -> Optional[User]:
     """
-    Actualiza un usuario por su ID con los datos proporcionados.
+    Update a user by their ID with the provided data.
     Args:
-        session (Session): Sesión de base de datos.
-        user_id (int): ID del usuario.
-        user_data (dict): Datos a actualizar.
+        session (Session): Database session.
+        user_id (int): User ID.
+        user_data (dict): Data to update.
     Returns:
-        Optional[User]: Usuario actualizado o None si no existe.
+        Optional[User]: Updated user or None if not found.
     """
     user = session.get(User, user_id)
     if not user:
@@ -139,12 +139,12 @@ def update_user(session: Session, user_id: int, user_data: Dict[str, Any]) -> Op
 
 def delete_user(session: Session, user_id: int) -> bool:
     """
-    Elimina un usuario por su ID.
+    Delete a user by their ID.
     Args:
-        session (Session): Sesión de base de datos.
-        user_id (int): ID del usuario.
+        session (Session): Database session.
+        user_id (int): User ID.
     Returns:
-        bool: True si se eliminó, False si no existe.
+        bool: True if deleted, False if not found.
     """
     user = session.get(User, user_id)
     if not user:
@@ -155,17 +155,17 @@ def delete_user(session: Session, user_id: int) -> bool:
 
 def save_metric_history(session: Session, device_id: int, cpu: float = None, ram: float = None, disk: float = None, temp: float = None, status: str = None) -> MetricHistory:
     """
-    Guarda un nuevo registro de historial de métricas para un dispositivo.
+    Save a new metric history record for a device.
     Args:
-        session (Session): Sesión de base de datos.
-        device_id (int): ID del dispositivo.
-        cpu (float, opcional): Uso de CPU.
-        ram (float, opcional): Uso de RAM.
-        disk (float, opcional): Uso de disco.
-        temp (float, opcional): Temperatura.
-        status (str, opcional): Estado.
+        session (Session): Database session.
+        device_id (int): Device ID.
+        cpu (float, optional): CPU usage.
+        ram (float, optional): RAM usage.
+        disk (float, optional): Disk usage.
+        temp (float, optional): Temperature.
+        status (str, optional): Status.
     Returns:
-        MetricHistory: Objeto de historial de métricas creado.
+        MetricHistory: Created metric history object.
     """
     metric = MetricHistory(
         device_id=device_id,
@@ -183,14 +183,14 @@ def save_metric_history(session: Session, device_id: int, cpu: float = None, ram
 
 def create_alert(session: Session, device_id: int, level: str, message: str) -> Alert:
     """
-    Crea una nueva alerta para un dispositivo.
+    Create a new alert for a device.
     Args:
-        session (Session): Sesión de base de datos.
-        device_id (int): ID del dispositivo.
-        level (str): Nivel de la alerta.
-        message (str): Mensaje de la alerta.
+        session (Session): Database session.
+        device_id (int): Device ID.
+        level (str): Alert level.
+        message (str): Alert message.
     Returns:
-        Alert: Objeto de alerta creado.
+        Alert: Created alert object.
     """
     alert = Alert(
         device_id=device_id,
@@ -206,12 +206,12 @@ def create_alert(session: Session, device_id: int, level: str, message: str) -> 
 
 def get_alerts(session: Session, unresolved_only: bool = False) -> List[Alert]:
     """
-    Devuelve una lista de alertas, opcionalmente solo las no resueltas.
+    Return a list of alerts, optionally only unresolved ones.
     Args:
-        session (Session): Sesión de base de datos.
-        unresolved_only (bool, opcional): Si es True, solo devuelve alertas no resueltas.
+        session (Session): Database session.
+        unresolved_only (bool, optional): If True, only return unresolved alerts.
     Returns:
-        List[Alert]: Lista de alertas.
+        List[Alert]: List of alerts.
     """
     query = select(Alert)
     if unresolved_only:
@@ -220,12 +220,12 @@ def get_alerts(session: Session, unresolved_only: bool = False) -> List[Alert]:
 
 def resolve_alert(session: Session, alert_id: int) -> bool:
     """
-    Marca una alerta como resuelta por su ID.
+    Mark an alert as resolved by its ID.
     Args:
-        session (Session): Sesión de base de datos.
-        alert_id (int): ID de la alerta.
+        session (Session): Database session.
+        alert_id (int): Alert ID.
     Returns:
-        bool: True si se resolvió, False si no existe.
+        bool: True if resolved, False if not found.
     """
     alert = session.get(Alert, alert_id)
     if not alert:

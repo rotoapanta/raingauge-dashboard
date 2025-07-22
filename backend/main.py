@@ -1,3 +1,11 @@
+"""
+main.py
+
+Entry point for the Raingauge Dashboard backend API.
+Initializes FastAPI application, configures logging, CORS, and registers API routers.
+Starts background monitoring for device status.
+"""
+
 from dotenv import load_dotenv
 import logging
 import threading
@@ -13,7 +21,7 @@ from background.ping_task import start_monitoring
 # Load environment variables from .env file
 load_dotenv()
 
-# Configure logging
+# Configure logging to file and console
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -23,10 +31,10 @@ logging.basicConfig(
     ]
 )
 
-# FastAPI application instance
+# Create FastAPI application instance
 app = FastAPI()
 
-# Configure CORS
+# Configure CORS to allow all origins and credentials
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -35,7 +43,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register API routers
+# Register API routers for different endpoints
 app.include_router(status_router)
 app.include_router(device_router)
 app.include_router(auth_router)

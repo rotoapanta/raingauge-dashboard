@@ -1,8 +1,8 @@
 """
 auth_utils.py
 
-Utilidades de autenticación para el backend de Raingauge Dashboard.
-Incluye función para obtener el usuario actual a partir del JWT.
+Authentication utilities for the Raingauge Dashboard backend.
+Provides a function to retrieve the current user from a JWT token.
 """
 
 from fastapi import Depends, HTTPException, status
@@ -18,16 +18,16 @@ bearer_scheme = HTTPBearer()
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> Optional[str]:
     """
-    Obtiene el usuario actual a partir del token JWT proporcionado en la cabecera Authorization.
+    Retrieve the current user from the JWT token provided in the Authorization header.
 
     Args:
-        credentials (HTTPAuthorizationCredentials): Credenciales de autorización HTTP Bearer.
+        credentials (HTTPAuthorizationCredentials): HTTP Bearer authorization credentials.
 
     Returns:
-        Optional[str]: Nombre de usuario extraído del token JWT.
+        Optional[str]: Username extracted from the JWT token.
 
     Raises:
-        HTTPException: Si el token es inválido o ha expirado.
+        HTTPException: If the token is invalid or expired.
     """
     token = credentials.credentials
     try:
@@ -36,6 +36,6 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(bearer_
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido o expirado",
+            detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         )
