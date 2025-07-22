@@ -51,13 +51,21 @@ def start_monitoring() -> None:
                     continue  # No alertar en el primer ciclo
                 if online != last_status:
                     # Cambio de estado: enviar alerta y registrar
+                    from utils import escape_markdown
                     if online:
-                        msg = f"🟢✅ Raspberry Pi {ip} ({device.name}) ha vuelto a estar ONLINE."
+                        msg = (
+                            "🟢✅ Raspberry Pi "
+                            f"{escape_markdown(ip)} ({escape_markdown(device.name)}) ha vuelto a estar ONLINE."
+                        )
                         level = "INFO"
                     else:
-                        msg = f"🔴❌ Raspberry Pi {ip} ({device.name}) está OFFLINE."
+                        msg = (
+                            "🔴❌ Raspberry Pi "
+                            f"{escape_markdown(ip)} ({escape_markdown(device.name)}) está OFFLINE."
+                        )
                         level = "CRITICAL"
-                    send_telegram_alert(msg)
+                    import asyncio
+                    asyncio.create_task(send_telegram_alert(msg, parse_mode="MarkdownV2"))
                     crud.create_alert(session, device.id, level, msg)
                     logger.info(f"[ALERTA] {msg}")
                     previous_status[ip] = online

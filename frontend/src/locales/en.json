@@ -1,6 +1,9 @@
 {
   "Dashboard": "Dashboard",
   "Administrar Dispositivos": "Manage Devices",
+  "Administrar Dispositivos y Usuarios": "Manage Devices and Users",
+  "Usuario agregado correctamente": "User added successfully",
+  "Usuario eliminado correctamente": "User deleted successfully",
   "Historial de Alertas": "Alert History",
   "Cerrar sesión": "Logout",
   "Iniciar sesión": "Login",
@@ -56,6 +59,7 @@
   "No": "No",
   "Error al guardar el dispositivo.": "Error saving device.",
   "Error al eliminar el dispositivo.": "Error deleting device.",
+  "Ya existe un usuario con ese nombre de usuario": "A user with that username already exists.",
   "Ya existe un usuario con ese nombre de usuario": "A user with that username already exists.",
   "Ya existe un dispositivo con esa IP": "A device with that IP already exists.",
   "¿Seguro que deseas eliminar este dispositivo?": "Are you sure you want to delete this device?",

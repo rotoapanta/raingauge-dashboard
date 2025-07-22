@@ -25,6 +25,7 @@ export function UserAdmin() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const token = localStorage.getItem("token");
   const { t } = useTranslation();
@@ -74,18 +75,31 @@ export function UserAdmin() {
         body: JSON.stringify(form),
       });
       if (!res.ok) {
-        let msg = t("Error al guardar el usuario.");
+        let msg = "";
         try {
           const data = await res.json();
           if (data && data.detail) {
             msg = t(data.detail);
           }
         } catch {}
+        if (!msg) {
+          msg = t("Error al guardar el usuario.");
+        }
+        if (
+          msg.toLowerCase().includes("already exists") ||
+          msg.toLowerCase().includes("ya existe")
+        ) {
+          setSuccessMessage(msg);
+          setTimeout(() => setSuccessMessage(""), 3000);
+          return;
+        }
         throw new Error(msg);
       }
       setForm({ role: "user" });
       setEditingId(null);
       fetchUsers();
+      setSuccessMessage(t("Usuario agregado correctamente"));
+      setTimeout(() => setSuccessMessage(""), 3000);
     } catch (e: any) {
       setError(e.message || t("Error al guardar el usuario."));
     }
@@ -107,6 +121,8 @@ export function UserAdmin() {
       });
       if (!res.ok) throw new Error();
       fetchUsers();
+      setSuccessMessage(t("Usuario eliminado correctamente"));
+      setTimeout(() => setSuccessMessage(""), 3000);
     } catch {
       setError(t("Error al eliminar el usuario."));
     }
@@ -115,6 +131,11 @@ export function UserAdmin() {
   return (
     <div className="bg-gray-900 p-4 rounded shadow">
       <h2 className="text-lg font-bold mb-4">{t("Administrar Usuarios")}</h2>
+      {successMessage && (
+        <div className="bg-green-700 text-white px-4 py-2 rounded mb-2 text-center font-semibold">
+          {successMessage}
+        </div>
+      )}
       {error && <div className="text-red-400 mb-2">{error}</div>}
       <form onSubmit={handleSubmit} className="mb-4 flex flex-col gap-2">
         <div className="flex gap-2">

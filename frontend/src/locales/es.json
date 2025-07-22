@@ -42,5 +42,7 @@
   "No hay alertas registradas.": "No hay alertas registradas.",
   "Activa": "Activa",
   "Resuelta": "Resuelta",
-  "Marcar como resuelta": "Marcar como resuelta"
+  "Marcar como resuelta": "Marcar como resuelta",
+  "Ya existe un usuario con ese nombre de usuario": "Ya existe un usuario con ese nombre de usuario",
+  "Ya existe un dispositivo con esa IP": "Ya existe un dispositivo con esa IP"
 }

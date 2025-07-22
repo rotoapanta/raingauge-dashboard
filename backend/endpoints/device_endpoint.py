@@ -40,16 +40,17 @@ async def create_device(device: Device, session: Session = Depends(get_session),
         created = crud.create_device(session, device)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    descripcion = device.description if device.description not in (None, "", "null") else "-"
-    habilitado = "Sí" if getattr(device, 'enabled', True) else "No"
+    from utils import escape_markdown
+    descripcion = escape_markdown(device.description if device.description not in (None, "", "null") else "-")
+    habilitado = escape_markdown("Sí" if getattr(device, 'enabled', True) else "No")
     msg = (
         "📡🆕 *Nuevo dispositivo registrado*\n"
-        f"• IP: {device.ip}\n"
+        f"• IP: {escape_markdown(device.ip)}\n"
         f"• Descripción: {descripcion}\n"
         f"• Habilitado: {habilitado}\n"
-        f"• Creado por: {user}"
+        f"• Creado por: {escape_markdown(user)}"
     )
-    await send_telegram_alert(msg)
+    await send_telegram_alert(msg, parse_mode="MarkdownV2")
     return created
 
 @router.get("/", response_model=List[Device])
@@ -94,8 +95,17 @@ async def update_device(device_id: int, device: Device, session: Session = Depen
     updated = crud.update_device(session, device_id, device.dict(exclude_unset=True))
     if not updated:
         raise HTTPException(status_code=404, detail="Device not found")
-    msg = f"El usuario {user} actualizó el dispositivo {device.ip}"
-    await send_telegram_alert(msg)
+    from utils import escape_markdown
+    descripcion = escape_markdown(device.description if device.description not in (None, "", "null") else "-")
+    habilitado = escape_markdown("Sí" if getattr(device, 'enabled', True) else "No")
+    msg = (
+        "🔄 *Dispositivo actualizado*\n"
+        f"• IP: {escape_markdown(device.ip)}\n"
+        f"• Descripción: {descripcion}\n"
+        f"• Habilitado: {habilitado}\n"
+        f"• Actualizado por: {escape_markdown(user)}"
+    )
+    await send_telegram_alert(msg, parse_mode="MarkdownV2")
     return updated
 
 @router.delete("/{device_id}", response_model=Dict[str, Any])

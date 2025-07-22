@@ -69,6 +69,7 @@ export default function Dashboard() {
   const [showChart, setShowChart] = useState<{ deviceId: number; name: string } | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(() => isTokenValid(localStorage.getItem("token")));
   const [userRole, setUserRole] = useState<string | null>(() => getUserRole());
+  const [successMessage, setSuccessMessage] = useState<string>("");
 
   // Mapear IP a deviceId y nombre
   const devicesByIp = useMemo(() => {
@@ -210,7 +211,7 @@ export default function Dashboard() {
             className={`px-4 py-2 rounded-t ${tab === "admin" ? "bg-blue-700 text-white" : "bg-gray-800 text-gray-300"}`}
             onClick={() => setTab("admin")}
           >
-            {t("Administrar Dispositivos")}
+            {t("Administrar Dispositivos y Usuarios")}
           </button>
         )}
         {/* Botón de historial de alertas eliminado */}
@@ -230,6 +231,11 @@ export default function Dashboard() {
           })()}
         </button>
       </div>
+      {successMessage && (
+        <div className="bg-green-700 text-white px-4 py-2 rounded mb-2 text-center font-semibold">
+          {successMessage}
+        </div>
+      )}
       {tab === "dashboard" ? (
         <>
           {/* Alertas activas */}
@@ -267,9 +273,9 @@ export default function Dashboard() {
       ) : tab === "admin" ? (
         userRole === "admin" ? (
           <>
-            <DeviceAdmin />
+            <DeviceAdmin onSuccess={msg => setSuccessMessage(msg)} />
             <div className="mt-8">
-              <UserAdmin />
+              <UserAdmin onSuccess={msg => setSuccessMessage(msg)} />
             </div>
           </>
         ) : null

@@ -25,7 +25,7 @@ export function DeviceAdmin() {
   const [form, setForm] = useState<Partial<Device>>({ enabled: true });
   const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
 
@@ -72,7 +72,7 @@ export function DeviceAdmin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
+    setSuccessMessage("");
     try {
       const method = editingId ? "PUT" : "POST";
       const url = editingId
@@ -91,12 +91,22 @@ export function DeviceAdmin() {
             msg = t(data.detail);
           }
         } catch {}
+        // Si el mensaje es de duplicado, mostrarlo en verde
+        if (
+          msg.toLowerCase().includes("already exists") ||
+          msg.toLowerCase().includes("ya existe") ||
+          (msg.toLowerCase().includes("dispositivo") && msg.toLowerCase().includes("existe"))
+        ) {
+          setSuccessMessage(msg);
+          setTimeout(() => setSuccessMessage(""), 3000);
+          return;
+        }
         throw new Error(msg);
       }
       setForm({ enabled: true });
       setEditingId(null);
-      setSuccess(editingId ? t("Dispositivo actualizado correctamente.") : t("Dispositivo agregado correctamente."));
-      setTimeout(() => setSuccess(""), 2000);
+      setSuccessMessage(editingId ? t("Dispositivo actualizado correctamente.") : t("Dispositivo agregado correctamente."));
+      setTimeout(() => setSuccessMessage(""), 3000);
       fetchDevices();
     } catch (e: any) {
       setError(e.message || t("Error al guardar el dispositivo."));
@@ -112,12 +122,12 @@ export function DeviceAdmin() {
   // Elimina un dispositivo
   const handleDelete = async (id: number) => {
     if (!window.confirm(t("¿Seguro que deseas eliminar este dispositivo?"))) return;
-    setSuccess("");
+    setSuccessMessage("");
     try {
       const res = await authFetch(`${RPI_BASE_URL}/devices/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
-      setSuccess(t("Dispositivo eliminado correctamente."));
-      setTimeout(() => setSuccess(""), 2000);
+      setSuccessMessage(t("Dispositivo eliminado correctamente."));
+      setTimeout(() => setSuccessMessage(""), 3000);
       fetchDevices();
     } catch {
       setError(t("Error al eliminar el dispositivo."));
@@ -128,7 +138,11 @@ export function DeviceAdmin() {
     <div className="bg-gray-900 p-4 rounded shadow">
       <h2 className="text-lg font-bold mb-4">{t("Lista de dispositivos")}</h2>
       {error && <div className="text-red-400 mb-2">{error}</div>}
-      {success && <div className="text-green-400 mb-2">{success}</div>}
+      {successMessage && (
+        <div className="bg-green-700 text-white px-4 py-2 rounded mb-2 text-center font-semibold">
+          {successMessage}
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="mb-4 flex flex-col gap-2">
         <div className="flex gap-2">
           <input

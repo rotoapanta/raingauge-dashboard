@@ -45,8 +45,15 @@ async def create_user(user_obj: User, session: Session = Depends(get_session), a
         import logging
         logging.error(f"Error en create_user: {e}")
         raise HTTPException(status_code=400, detail=f"Error al crear usuario: {str(e)}")
-    msg = f"El usuario {admin.username} creó el usuario {user_obj.username}"
-    await send_telegram_alert(msg)
+    from utils import escape_markdown
+    msg = (
+        "👤🆕 *Nuevo usuario creado*\n"
+        f"• Usuario: {escape_markdown(user_obj.username)}\n"
+        f"• Email: {escape_markdown(getattr(user_obj, 'email', '-') or '-')}\n"
+        f"• Rol: {escape_markdown(getattr(user_obj, 'role', '-'))}\n"
+        f"• Creado por: {escape_markdown(admin.username)}"
+    )
+    await send_telegram_alert(msg, parse_mode="MarkdownV2")
     return created
 
 @router.get("/", response_model=List[User])
@@ -89,8 +96,15 @@ async def update_user(user_id: int, user_obj: User, session: Session = Depends(g
     updated = crud.update_user(session, user_id, user_obj.dict(exclude_unset=True))
     if not updated:
         raise HTTPException(status_code=404, detail="User not found")
-    msg = f"El usuario {admin.username} actualizó el usuario {user_obj.username}"
-    await send_telegram_alert(msg)
+    from utils import escape_markdown
+    msg = (
+        "✏️ *Usuario actualizado*\n"
+        f"• Usuario: {escape_markdown(user_obj.username)}\n"
+        f"• Email: {escape_markdown(getattr(user_obj, 'email', '-') or '-')}\n"
+        f"• Rol: {escape_markdown(getattr(user_obj, 'role', '-') or '-')}\n"
+        f"• Actualizado por: {escape_markdown(admin.username)}"
+    )
+    await send_telegram_alert(msg, parse_mode="MarkdownV2")
     return updated
 
 @router.delete("/{user_id}", response_model=Dict[str, Any])
