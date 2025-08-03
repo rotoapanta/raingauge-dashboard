@@ -1,10 +1,10 @@
 """
 utils.py
 
-Utility functions for the Raingauge Dashboard backend.
+Utility functions for the Raspberry Pi Dashboard backend.
 Includes helpers for Telegram alerts, status and log fetching, and Markdown escaping.
 
-Funciones utilitarias para el backend de Raingauge Dashboard.
+Funciones utilitarias para el backend de Raspberry Pi Dashboard.
 Incluye utilidades para alertas de Telegram, obtención de estado y logs, y escape de Markdown.
 """
 

@@ -1,11 +1,11 @@
 """
 crud.py
 
-CRUD operations for the Raingauge Dashboard backend.
+CRUD operations for the Raspberry Pi Dashboard backend.
 Includes functions to create, read, update, and delete devices, users, metrics, and alerts in the database.
 All functions use SQLModel sessions and validate uniqueness where appropriate.
 
-Operaciones CRUD para el backend de Raingauge Dashboard.
+Operaciones CRUD para el backend de Raspberry Pi Dashboard.
 Incluye funciones para crear, leer, actualizar y eliminar dispositivos, usuarios, métricas y alertas en la base de datos.
 Todas las funciones usan sesiones de SQLModel y validan unicidad donde corresponde.
 """

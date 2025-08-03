@@ -1,8 +1,8 @@
 """
 logging_utils.py
 
-Utilities for logging and reading connection logs in the Raingauge Dashboard backend.
-Utilidades para el registro y lectura de logs de conexión en el backend de Raingauge Dashboard.
+Utilities for logging and reading connection logs in the Raspberry Pi Dashboard backend.
+Utilidades para el registro y lectura de logs de conexión en el backend de Raspberry Pi Dashboard.
 """
 
 import os

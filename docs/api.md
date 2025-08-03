@@ -1,4 +1,4 @@
-# Documentación de la API / API Documentation
+# Documentación de la API de Raspberry Pi Dashboard / Raspberry Pi Dashboard API Documentation
 
 ## Autenticación / Authentication
 

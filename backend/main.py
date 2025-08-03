@@ -1,11 +1,11 @@
 """
 main.py
 
-Entry point for the Raingauge Dashboard backend API.
+Entry point for the Raspberry Pi Dashboard backend API.
 Initializes FastAPI application, configures logging, CORS, and registers API routers.
 Starts background monitoring for device status.
 
-Punto de entrada para la API backend de Raingauge Dashboard.
+Punto de entrada para la API backend de Raspberry Pi Dashboard.
 Inicializa la aplicación FastAPI, configura logging, CORS y registra los routers de la API.
 Inicia la monitorización en segundo plano del estado de los dispositivos.
 """

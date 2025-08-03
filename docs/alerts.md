@@ -1,4 +1,4 @@
-# Alertas y Notificaciones / Alerts and Notifications
+# Alertas y Notificaciones de Raspberry Pi Dashboard / Raspberry Pi Dashboard Alerts and Notifications
 
 ## ¿Cómo funcionan las alertas? / How do alerts work?
 

@@ -1,10 +1,10 @@
 """
 status_endpoint.py
 
-Endpoints for device status and logs in the Raingauge Dashboard backend.
+Endpoints for device status and logs in the Raspberry Pi Dashboard backend.
 Provides API routes for checking API health, device status, and logs.
 
-Endpoints para el estado y logs de dispositivos en el backend de Raingauge Dashboard.
+Endpoints para el estado y logs de dispositivos en el backend de Raspberry Pi Dashboard.
 Proporciona rutas API para verificar el estado de la API, el estado de los dispositivos y los logs.
 """
 

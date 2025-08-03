@@ -1,10 +1,10 @@
 """
 create_local_user.py
 
-Utility script to create a local user in the Raingauge Dashboard database.
+Utility script to create a local user in the Raspberry Pi Dashboard database.
 Allows creating or replacing a user with a local password and specified role.
 
-Script utilitario para crear un usuario local en la base de datos de Raingauge Dashboard.
+Script utilitario para crear un usuario local en la base de datos de Raspberry Pi Dashboard.
 Permite crear o reemplazar un usuario con contraseña local y rol especificado.
 """
 

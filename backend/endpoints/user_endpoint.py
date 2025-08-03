@@ -1,10 +1,10 @@
 """
 user_endpoint.py
 
-Endpoints for user management in the Raingauge Dashboard backend.
+Endpoints for user management in the Raspberry Pi Dashboard backend.
 Includes CRUD operations and user-related alerts.
 
-Endpoints para la gestión de usuarios en el backend de Raingauge Dashboard.
+Endpoints para la gestión de usuarios en el backend de Raspberry Pi Dashboard.
 Incluye operaciones CRUD y alertas relacionadas con usuarios.
 """
 
@@ -108,7 +108,7 @@ async def update_user(user_id: int, user_obj: User, session: Session = Depends(g
         raise HTTPException(status_code=404, detail="User not found")
     from utils import escape_markdown
     msg = (
-        "✏️ *User updated*\n"
+        "🔄 *User updated*\n"
         f"• Username: {escape_markdown(user_obj.username)}\n"
         f"• Email: {escape_markdown(getattr(user_obj, 'email', '-') or '-')}\n"
         f"• Role: {escape_markdown(getattr(user_obj, 'role', '-') or '-')}\n"

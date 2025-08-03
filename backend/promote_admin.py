@@ -1,9 +1,9 @@
 """
 promote_admin.py
 
-Utility script to promote an existing user to admin role in the Raingauge Dashboard database.
+Utility script to promote an existing user to admin role in the Raspberry Pi Dashboard database.
 
-Script utilitario para promover un usuario existente al rol de administrador en la base de datos del Raingauge Dashboard.
+Script utilitario para promover un usuario existente al rol de administrador en la base de datos del Raspberry Pi Dashboard.
 """
 
 from sqlmodel import Session, create_engine, select

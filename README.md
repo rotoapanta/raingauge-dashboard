@@ -79,6 +79,34 @@ README.md
 
 ---
 
+## 👤 Creación del primer usuario admin / Creating the first admin user
+
+**ES:**
+Después de iniciar los servicios, crea el primer usuario administrador ejecutando el siguiente comando:
+
+```bash
+# Entra al contenedor backend
+sudo docker exec -it raingauge-backend bash
+# Dentro del contenedor, ejecuta:
+python3 create_local_user.py
+```
+
+Sigue las instrucciones para ingresar el nombre de usuario, contraseña y rol (usa `admin` para el primer usuario).
+
+**EN:**
+After starting the services, create the first admin user by running the following command:
+
+```bash
+# Enter the backend container
+sudo docker exec -it raingauge-backend bash
+# Inside the container, run:
+python3 create_local_user.py
+```
+
+Follow the prompts to enter the username, password, and role (use `admin` for the first user).
+
+---
+
 ## 👤 Uso / Usage
 
 **ES:**

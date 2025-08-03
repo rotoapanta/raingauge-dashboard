@@ -1,10 +1,10 @@
 """
 auth_utils.py
 
-Authentication utilities for the Raingauge Dashboard backend.
+Authentication utilities for the Raspberry Pi Dashboard backend.
 Provides a function to retrieve the current user from a JWT token.
 
-Utilidades de autenticación para el backend de Raingauge Dashboard.
+Utilidades de autenticación para el backend de Raspberry Pi Dashboard.
 Proporciona una función para obtener el usuario actual a partir de un token JWT.
 """
 

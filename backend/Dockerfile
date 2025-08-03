@@ -1,9 +1,9 @@
 # Dockerfile
 #
-# Build and run the Raingauge Dashboard backend in a container.
+# Build and run the Raspberry Pi Dashboard backend in a container.
 # Installs dependencies, exposes port 8000, and starts the FastAPI app with Uvicorn.
 #
-# Construye y ejecuta el backend de Raingauge Dashboard en un contenedor.
+# Construye y ejecuta el backend de Raspberry Pi Dashboard en un contenedor.
 # Instala dependencias, expone el puerto 8000 y lanza la app FastAPI con Uvicorn.
 
 FROM python:3.11-slim-bullseye

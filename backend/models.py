@@ -1,10 +1,10 @@
 """
 models.py
 
-Data models for the Raingauge Dashboard backend.
+Data models for the Raspberry Pi Dashboard backend.
 Defines the main tables: Device, MetricHistory, User, and Alert.
 
-Modelos de datos para el backend de Raingauge Dashboard.
+Modelos de datos para el backend de Raspberry Pi Dashboard.
 Define las tablas principales: Device, MetricHistory, User y Alert.
 """
 

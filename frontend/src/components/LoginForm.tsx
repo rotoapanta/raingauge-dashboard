@@ -11,6 +11,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RPI_BASE_URL } from "../config";
+import logo from "../assets/logo-raspberry-pi-dashboard.png";
 
 interface LoginFormProps {
   onLogin: () => void;
@@ -56,6 +57,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   return (
     // Login form container / Contenedor del formulario de login
     <form onSubmit={handleSubmit} className="bg-gray-900 p-6 rounded shadow max-w-sm mx-auto mt-12 flex flex-col gap-4">
+      <img src={logo} alt="Raspberry Pi Dashboard Logo" className="mx-auto mb-4 w-72 h-72 object-contain" />
       <h2 className="text-lg font-bold mb-2">Sign In</h2>
       {/* Error message / Mensaje de error */}
       {error && <div className="text-red-400">{error}</div>}

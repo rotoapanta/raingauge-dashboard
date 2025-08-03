@@ -1,10 +1,10 @@
 """
 device_endpoint.py
 
-Endpoints for device management in the Raingauge Dashboard backend.
+Endpoints for device management in the Raspberry Pi Dashboard backend.
 Includes CRUD operations, metrics, and alerts.
 
-Endpoints para la gestión de dispositivos en el backend de Raingauge Dashboard.
+Endpoints para la gestión de dispositivos en el backend de Raspberry Pi Dashboard.
 Incluye operaciones CRUD, métricas y alertas.
 """
 

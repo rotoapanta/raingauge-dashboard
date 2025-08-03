@@ -1,4 +1,4 @@
-# Arquitectura del Raingauge Dashboard / Raingauge Dashboard Architecture
+# Arquitectura del Raspberry Pi Dashboard / Raspberry Pi Dashboard Architecture
 
 ## Diagrama General / General Diagram
 

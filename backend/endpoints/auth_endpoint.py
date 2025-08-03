@@ -1,10 +1,10 @@
 """
 auth_endpoint.py
 
-Authentication endpoints for the Raingauge Dashboard backend.
+Authentication endpoints for the Raspberry Pi Dashboard backend.
 Includes local login and JWT generation.
 
-Endpoints de autenticación para el backend de Raingauge Dashboard.
+Endpoints de autenticación para el backend de Raspberry Pi Dashboard.
 Incluye login local y generación de JWT.
 """
 
