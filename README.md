@@ -1,4 +1,14 @@
-# Raingauge Dashboard
+[![Python](https://img.shields.io/badge/Python-3.11-brightgreen)](https://www.python.org/)
+[![Docker](https://img.shields.io/badge/Docker-Supported-blue)](https://www.docker.com/)
+[![Linux](https://img.shields.io/badge/Linux-Supported-brightgreen)](https://www.linux.org/)
+[![GitHub issues](https://img.shields.io/github/issues/rotoapanta/raingauge-dashboard)](https://github.com/rotoapanta/raingauge-dashboard/issues)
+[![GitHub repo size](https://img.shields.io/github/repo-size/rotoapanta/raingauge-dashboard)](https://github.com/rotoapanta/raingauge-dashboard)
+[![GitHub last commit](https://img.shields.io/github/last-commit/rotoapanta/raingauge-dashboard)](https://github.com/rotoapanta/raingauge-dashboard/commits/main)
+[![GitHub forks](https://img.shields.io/github/forks/rotoapanta/raingauge-dashboard?style=social)](https://github.com/rotoapanta/raingauge-dashboard/network/members)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Author](https://img.shields.io/badge/Roberto%20Toapanta-Linkedin-blue)](https://www.linkedin.com/in/roberto-carlos-toapanta-g/)
+
+# <p align="center">Raingauge Dashboard
 
 ---
 
