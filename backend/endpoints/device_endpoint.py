@@ -3,6 +3,9 @@ device_endpoint.py
 
 Endpoints for device management in the Raingauge Dashboard backend.
 Includes CRUD operations, metrics, and alerts.
+
+Endpoints para la gestión de dispositivos en el backend de Raingauge Dashboard.
+Incluye operaciones CRUD, métricas y alertas.
 """
 
 from fastapi import APIRouter, HTTPException, Depends
@@ -20,11 +23,13 @@ DATABASE_URL = "sqlite:///raspberry.db"
 engine = create_engine(DATABASE_URL, echo=True)
 
 # Create tables if they do not exist
+# Crear tablas si no existen
 SQLModel.metadata.create_all(engine)
 
 def get_session():
     """
     Generator for database sessions for dependency injection.
+    Generador de sesiones de base de datos para inyección de dependencias.
     """
     with Session(engine) as session:
         yield session
@@ -35,6 +40,7 @@ router = APIRouter(prefix="/devices", tags=["devices"])
 async def create_device(device: Device, session: Session = Depends(get_session), user: str = Depends(get_current_user)) -> Device:
     """
     Create a new device and send a Telegram alert.
+    Crea un nuevo dispositivo y envía una alerta por Telegram.
     """
     try:
         created = crud.create_device(session, device)
@@ -57,6 +63,7 @@ async def create_device(device: Device, session: Session = Depends(get_session),
 def read_devices(session: Session = Depends(get_session)) -> List[Device]:
     """
     List all registered devices.
+    Lista todos los dispositivos registrados.
     """
     return crud.get_devices(session)
 
@@ -64,6 +71,7 @@ def read_devices(session: Session = Depends(get_session)) -> List[Device]:
 def get_alerts(session: Session = Depends(get_session), unresolved_only: bool = False) -> List[Alert]:
     """
     List all alerts, optionally only unresolved ones.
+    Lista todas las alertas, opcionalmente solo las no resueltas.
     """
     return crud.get_alerts(session, unresolved_only=unresolved_only)
 
@@ -71,6 +79,7 @@ def get_alerts(session: Session = Depends(get_session), unresolved_only: bool = 
 def resolve_alert(alert_id: int, session: Session = Depends(get_session), user: str = Depends(get_current_user)) -> Dict[str, Any]:
     """
     Mark an alert as resolved.
+    Marca una alerta como resuelta.
     """
     ok = crud.resolve_alert(session, alert_id)
     if not ok:
@@ -81,6 +90,7 @@ def resolve_alert(alert_id: int, session: Session = Depends(get_session), user: 
 def read_device(device_id: int, session: Session = Depends(get_session)) -> Device:
     """
     Get a device by its ID.
+    Obtiene un dispositivo por su ID.
     """
     device = crud.get_device(session, device_id)
     if not device:
@@ -91,6 +101,7 @@ def read_device(device_id: int, session: Session = Depends(get_session)) -> Devi
 async def update_device(device_id: int, device: Device, session: Session = Depends(get_session), user: str = Depends(get_current_user)) -> Device:
     """
     Update an existing device and send a Telegram alert.
+    Actualiza un dispositivo existente y envía una alerta por Telegram.
     """
     updated = crud.update_device(session, device_id, device.dict(exclude_unset=True))
     if not updated:
@@ -112,6 +123,7 @@ async def update_device(device_id: int, device: Device, session: Session = Depen
 def delete_device(device_id: int, session: Session = Depends(get_session), user: str = Depends(get_current_user)) -> Dict[str, Any]:
     """
     Delete a device by its ID.
+    Elimina un dispositivo por su ID.
     """
     device = session.get(Device, device_id)
     if not device:
@@ -144,6 +156,7 @@ def get_device_metrics(device_id: int, session: Session = Depends(get_session),
                       start: Optional[datetime] = None, end: Optional[datetime] = None) -> List[MetricHistory]:
     """
     Get the metric history of a device within an optional date range.
+    Obtiene el historial de métricas de un dispositivo en un rango de fechas opcional.
     """
     query = select(MetricHistory).where(MetricHistory.device_id == device_id)
     if start:

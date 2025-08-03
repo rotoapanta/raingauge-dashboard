@@ -1,8 +1,11 @@
 /**
  * DeviceAdmin.tsx
  *
- * Componente de administración de dispositivos.
- * Permite agregar, editar, eliminar y listar dispositivos con autenticación.
+ * Component for device administration (CRUD) with authentication.
+ * Allows adding, editing, deleting, and listing devices.
+ *
+ * Componente para la administración de dispositivos (CRUD) con autenticación.
+ * Permite agregar, editar, eliminar y listar dispositivos.
  */
 
 import { useEffect, useState } from "react";
@@ -11,14 +14,17 @@ import { useTranslation } from "react-i18next";
 
 interface Device {
   id?: number;
-  name: string;
   ip: string;
   description?: string;
   enabled: boolean;
 }
 
 /**
- * Componente para administrar dispositivos (CRUD) con autenticación.
+ * Main component for managing devices (CRUD) with authentication.
+ * Handles device list, form state, and actions for add, edit, and delete.
+ *
+ * Componente principal para administrar dispositivos (CRUD) con autenticación.
+ * Maneja la lista de dispositivos, el estado del formulario y las acciones de agregar, editar y eliminar.
  */
 export function DeviceAdmin() {
   const [devices, setDevices] = useState<Device[]>([]);
@@ -29,6 +35,7 @@ export function DeviceAdmin() {
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
 
+  // Perform authenticated requests using JWT token
   // Realiza peticiones autenticadas usando el token JWT
   function authFetch(input: RequestInfo, init: RequestInit = {}) {
     const token = localStorage.getItem("token");
@@ -41,7 +48,8 @@ export function DeviceAdmin() {
     });
   }
 
-  // Obtiene la lista de dispositivos
+  // Fetch the list of devices from backend
+  // Obtener la lista de dispositivos del backend
   const fetchDevices = async () => {
     setLoading(true);
     try {
@@ -49,17 +57,20 @@ export function DeviceAdmin() {
       const data = await res.json();
       setDevices(data);
     } catch (e) {
-      setError(t("No se pudo obtener la lista de dispositivos."));
+      setError("Could not fetch device list.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch devices on mount
+  // Obtener dispositivos al montar el componente
   useEffect(() => {
     fetchDevices();
   }, []);
 
-  // Maneja cambios en el formulario
+  // Handle form input changes
+  // Manejar cambios en el formulario
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -68,7 +79,8 @@ export function DeviceAdmin() {
     }));
   };
 
-  // Envía el formulario para agregar o actualizar un dispositivo
+  // Handle form submission for adding or updating a device
+  // Manejar el envío del formulario para agregar o actualizar un dispositivo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -84,18 +96,17 @@ export function DeviceAdmin() {
         body: JSON.stringify(form),
       });
       if (!res.ok) {
-        let msg = t("Error al guardar el dispositivo.");
+        let msg = "Error saving device.";
         try {
           const data = await res.json();
           if (data && data.detail) {
-            msg = t(data.detail);
+            msg = data.detail;
           }
         } catch {}
+        // If the message is about a duplicate, show it in green
         // Si el mensaje es de duplicado, mostrarlo en verde
         if (
-          msg.toLowerCase().includes("already exists") ||
-          msg.toLowerCase().includes("ya existe") ||
-          (msg.toLowerCase().includes("dispositivo") && msg.toLowerCase().includes("existe"))
+          msg.toLowerCase().includes("already exists")
         ) {
           setSuccessMessage(msg);
           setTimeout(() => setSuccessMessage(""), 3000);
@@ -105,38 +116,40 @@ export function DeviceAdmin() {
       }
       setForm({ enabled: true });
       setEditingId(null);
-      setSuccessMessage(editingId ? t("Dispositivo actualizado correctamente.") : t("Dispositivo agregado correctamente."));
+      setSuccessMessage(editingId ? "Device updated successfully." : "Device added successfully.");
       setTimeout(() => setSuccessMessage(""), 3000);
       fetchDevices();
     } catch (e: any) {
-      setError(e.message || t("Error al guardar el dispositivo."));
+      setError(e.message || "Error saving device.");
     }
   };
 
-  // Rellena el formulario para editar un dispositivo
+  // Fill the form for editing a device
+  // Rellenar el formulario para editar un dispositivo
   const handleEdit = (device: Device) => {
     setForm(device);
     setEditingId(device.id!);
   };
 
-  // Elimina un dispositivo
+  // Delete a device
+  // Eliminar un dispositivo
   const handleDelete = async (id: number) => {
-    if (!window.confirm(t("¿Seguro que deseas eliminar este dispositivo?"))) return;
+    if (!window.confirm("Are you sure you want to delete this device?")) return;
     setSuccessMessage("");
     try {
       const res = await authFetch(`${RPI_BASE_URL}/devices/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
-      setSuccessMessage(t("Dispositivo eliminado correctamente."));
+      setSuccessMessage("Device deleted successfully.");
       setTimeout(() => setSuccessMessage(""), 3000);
       fetchDevices();
     } catch {
-      setError(t("Error al eliminar el dispositivo."));
+      setError("Error deleting device.");
     }
   };
 
   return (
     <div className="bg-gray-900 p-4 rounded shadow">
-      <h2 className="text-lg font-bold mb-4">{t("Lista de dispositivos")}</h2>
+      <h2 className="text-lg font-bold mb-4">Device List</h2>
       {error && <div className="text-red-400 mb-2">{error}</div>}
       {successMessage && (
         <div className="bg-green-700 text-white px-4 py-2 rounded mb-2 text-center font-semibold">
@@ -158,7 +171,7 @@ export function DeviceAdmin() {
           name="description"
           value={form.description || ""}
           onChange={handleChange}
-          placeholder={t("Descripción")}
+          placeholder={t("Description")}
           className="p-2 rounded bg-gray-800 text-white"
         />
         <label className="flex items-center gap-2">
@@ -168,13 +181,13 @@ export function DeviceAdmin() {
             checked={form.enabled ?? true}
             onChange={handleChange}
           />
-          {t("Habilitado")}
+          {t("Enabled")}
         </label>
         <button
           type="submit"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-40"
         >
-          {editingId ? t("Actualizar") : t("Agregar")}
+          {editingId ? t("Update") : t("Add")}
         </button>
         {editingId && (
           <button
@@ -185,21 +198,21 @@ export function DeviceAdmin() {
               setEditingId(null);
             }}
           >
-            {t("Cancelar edición")}
+          {t("Cancel edit")}
           </button>
         )}
       </form>
-      <h3 className="font-semibold mb-2">{t("Lista de dispositivos")}</h3>
+      <h3 className="font-semibold mb-2">{t("Device List")}</h3>
       {loading ? (
-        <div className="text-gray-400">{t("Cargando...")}</div>
+        <div className="text-gray-400">{t("Loading...")}</div>
       ) : (
         <table className="min-w-full text-white text-sm rounded shadow">
           <thead>
             <tr className="bg-gray-700 text-left">
               <th className="px-2 py-1">{t("IP")}</th>
-              <th className="px-2 py-1">{t("Descripción")}</th>
-              <th className="px-2 py-1">{t("Habilitado")}</th>
-              <th className="px-2 py-1">{t("Acciones")}</th>
+              <th className="px-2 py-1">{t("Description")}</th>
+              <th className="px-2 py-1">{t("Enabled")}</th>
+              <th className="px-2 py-1">{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -207,19 +220,19 @@ export function DeviceAdmin() {
               <tr key={d.id} className="border-t border-gray-700">
                 <td className="px-2 py-1 font-mono">{d.ip}</td>
                 <td className="px-2 py-1">{d.description}</td>
-                <td className="px-2 py-1">{d.enabled ? t("Sí") : t("No")}</td>
+                <td className="px-2 py-1">{d.enabled ? t("Yes") : t("No")}</td>
                 <td className="px-2 py-1 flex gap-2">
                   <button
                     className="text-blue-400 underline"
                     onClick={() => handleEdit(d)}
                   >
-                    {t("Editar")}
+                  {t("Edit")}
                   </button>
                   <button
                     className="text-red-400 underline"
                     onClick={() => handleDelete(d.id!)}
                   >
-                    {t("Eliminar")}
+                  {t("Delete")}
                   </button>
                 </td>
               </tr>

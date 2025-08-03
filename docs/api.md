@@ -1,12 +1,14 @@
-# Documentación de la API
+# Documentación de la API / API Documentation
 
-## Autenticación
+## Autenticación / Authentication
 
-- **POST /auth/login**
-  - Body: `{ "username": "usuario", "password": "clave" }`
-  - Respuesta: `{ "access_token": "...", "token_type": "bearer" }`
+- **POST /auth/local-login**
+  - Body: `{ "username": "usuario", "password": "clave" }`  
+    Body: `{ "username": "user", "password": "password" }`
+  - Respuesta: `{ "access_token": "...", "token_type": "bearer", "role": "user|admin" }`  
+    Response: `{ "access_token": "...", "token_type": "bearer", "role": "user|admin" }`
 
-## Dispositivos
+## Dispositivos / Devices
 
 - **GET /devices/**
 - **POST /devices/** (admin)
@@ -15,7 +17,7 @@
 - **DELETE /devices/{id}** (admin)
 - **GET /devices/{id}/metrics**
 
-## Usuarios (solo admin)
+## Usuarios (solo admin) / Users (admin only)
 
 - **GET /users/**
 - **POST /users/**
@@ -23,24 +25,28 @@
 - **PUT /users/{id}**
 - **DELETE /users/{id}**
 
-## Alertas
+## Alertas / Alerts
 
-- **GET /devices/alerts**
-  - Query param: `unresolved_only=true` para solo activas
+- **GET /devices/alerts**  
+  Parámetro de consulta: `unresolved_only=true` para solo activas  
+  Query param: `unresolved_only=true` for only active
 - **POST /devices/alerts/{alert_id}/resolve** (admin)
 
 ## WebSocket
 
 - **ws://localhost:8000/ws/status**
-  - Envía periódicamente `{ devices, metrics, alerts }` en JSON
+  - Envía periódicamente `{ devices, metrics, alerts }` en JSON  
+    Periodically sends `{ devices, metrics, alerts }` in JSON
 
-## Ejemplo de autenticación JWT
+## Ejemplo de autenticación JWT / JWT Authentication Example
 
-Incluye el token en el header:
+Incluye el token en el header:  
+Include the token in the header:
 ```
 Authorization: Bearer <token>
 ```
 
 ---
 
-Para detalles de arquitectura, consulta `docs/architecture.md`.
+Para detalles de arquitectura, consulta `docs/architecture.md`.  
+For architecture details, see `docs/architecture.md`.

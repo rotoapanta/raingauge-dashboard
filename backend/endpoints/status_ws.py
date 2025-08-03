@@ -1,7 +1,9 @@
 """
 status_ws.py
 
-WebSocket endpoint para transmitir en tiempo real el estado de dispositivos, métricas y alertas.
+WebSocket endpoint for real-time transmission of device status, metrics, and alerts.
+
+Endpoint WebSocket para transmitir en tiempo real el estado de dispositivos, métricas y alertas.
 """
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
@@ -15,6 +17,7 @@ router = APIRouter()
 
 class ConnectionManager:
     """
+    Manages active WebSocket connections and message broadcasting.
     Gestiona las conexiones WebSocket activas y el envío de mensajes.
     """
     def __init__(self):
@@ -22,6 +25,7 @@ class ConnectionManager:
 
     async def connect(self, websocket: WebSocket) -> None:
         """
+        Accept and register a new WebSocket connection.
         Acepta y registra una nueva conexión WebSocket.
         """
         await websocket.accept()
@@ -29,12 +33,14 @@ class ConnectionManager:
 
     def disconnect(self, websocket: WebSocket) -> None:
         """
+        Remove a closed WebSocket connection.
         Elimina una conexión WebSocket cerrada.
         """
         self.active_connections.remove(websocket)
 
     async def broadcast(self, message: Dict[str, Any]) -> None:
         """
+        Send a message to all active connections.
         Envía un mensaje a todas las conexiones activas.
         """
         for connection in self.active_connections:
@@ -45,6 +51,7 @@ manager = ConnectionManager()
 @router.websocket("/ws/status")
 async def websocket_status(websocket: WebSocket) -> None:
     """
+    WebSocket that periodically transmits device status, metrics, and alerts.
     WebSocket que transmite periódicamente el estado de dispositivos, métricas y alertas.
     """
     await manager.connect(websocket)

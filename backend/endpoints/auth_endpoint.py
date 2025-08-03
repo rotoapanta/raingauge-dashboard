@@ -3,6 +3,9 @@ auth_endpoint.py
 
 Authentication endpoints for the Raingauge Dashboard backend.
 Includes local login and JWT generation.
+
+Endpoints de autenticación para el backend de Raingauge Dashboard.
+Incluye login local y generación de JWT.
 """
 
 from fastapi import APIRouter, HTTPException
@@ -30,15 +33,19 @@ class LoginRequest(BaseModel):
 def local_login(data: LoginRequest) -> Dict[str, str]:
     """
     Local user authentication. Returns a JWT if credentials are valid.
+    Autenticación de usuario local. Retorna un JWT si las credenciales son válidas.
 
     Args:
         data (LoginRequest): Login data (username and password).
+        data (LoginRequest): Datos de login (usuario y contraseña).
 
     Returns:
         Dict[str, str]: JWT token and token type.
+        Dict[str, str]: Token JWT y tipo de token.
 
     Raises:
         HTTPException: If the user does not exist or the password is incorrect.
+        HTTPException: Si el usuario no existe o la contraseña es incorrecta.
     """
     with Session(engine) as session:
         user = session.exec(select(User).where(User.username == data.username)).first()

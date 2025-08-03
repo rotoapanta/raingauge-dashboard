@@ -1,6 +1,7 @@
 """
 logging_utils.py
 
+Utilities for logging and reading connection logs in the Raingauge Dashboard backend.
 Utilidades para el registro y lectura de logs de conexión en el backend de Raingauge Dashboard.
 """
 
@@ -12,8 +13,10 @@ LOG_FILE = "/app/logs/connection.log"
 
 def log_status(is_online: bool) -> None:
     """
+    Log the connection status (ONLINE/OFFLINE) to the log file.
     Registra el estado de conexión (ONLINE/OFFLINE) en el archivo de logs.
     Args:
+        is_online (bool): True if online, False if offline.
         is_online (bool): True si está online, False si está offline.
     """
     os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
@@ -23,8 +26,10 @@ def log_status(is_online: bool) -> None:
 
 def read_logs() -> List[Dict[str, str]]:
     """
+    Read the last 50 entries from the connection log file.
     Lee los últimos 50 registros del archivo de logs de conexión.
     Returns:
+        List[Dict[str, str]]: List of dicts with timestamp and status.
         List[Dict[str, str]]: Lista de diccionarios con timestamp y status.
     """
     if not os.path.exists(LOG_FILE):

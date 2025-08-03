@@ -1,3 +1,11 @@
+# requirements.txt
+#
+# List of Python dependencies for the Raingauge Dashboard backend.
+# Install with: pip install -r requirements.txt
+#
+# Lista de dependencias Python para el backend de Raingauge Dashboard.
+# Instalar con: pip install -r requirements.txt
+
 fastapi
 uvicorn[standard]
 psutil

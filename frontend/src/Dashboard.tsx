@@ -1,15 +1,25 @@
+/**
+ * Dashboard.tsx
+ *
+ * Main dashboard component for device and user management, metrics, and real-time status.
+ * Handles authentication, data fetching, and UI tab navigation.
+ *
+ * Componente principal del dashboard para la gestión de dispositivos y usuarios, métricas y estado en tiempo real.
+ * Maneja autenticación, obtención de datos y navegación de pestañas en la interfaz.
+ */
+
 import { useEffect, useState, useMemo } from "react";
 import { RPI_BASE_URL } from "./config";
 import { useTranslation } from "react-i18next";
 import "./i18n";
 import { RaspberryTable } from "./components/RaspberryTable";
 import { DeviceAdmin } from "./components/DeviceAdmin";
-import { MetricChart } from "./components/MetricChart";
-import { AlertBanner } from "./components/AlertBanner";
 import { UserAdmin } from "./components/UserAdmin";
 import { Spinner } from "./components/Spinner";
 import { LoginForm } from "./components/LoginForm";
 
+// Get user role from JWT token
+// Obtener el rol de usuario desde el token JWT
 function getUserRole(): string | null {
   try {
     const token = localStorage.getItem("token");
@@ -45,6 +55,8 @@ interface LogsByRaspberry {
   logs: LogEntry[] | { error: string };
 }
 
+// Check if JWT token is valid
+// Verificar si el token JWT es válido
 function isTokenValid(token: string | null): boolean {
   if (!token) return false;
   try {
@@ -55,6 +67,11 @@ function isTokenValid(token: string | null): boolean {
   }
 }
 
+/**
+ * Dashboard main component for device and user management, metrics, and real-time status.
+ *
+ * Componente principal del dashboard para gestión de dispositivos y usuarios, métricas y estado en tiempo real.
+ */
 export default function Dashboard() {
   const { t, i18n } = useTranslation();
   const [statusList, setStatusList] = useState<StatusData[]>([]);
@@ -71,6 +88,7 @@ export default function Dashboard() {
   const [userRole, setUserRole] = useState<string | null>(() => getUserRole());
   const [successMessage, setSuccessMessage] = useState<string>("");
 
+  // Map IP to deviceId and name
   // Mapear IP a deviceId y nombre
   const devicesByIp = useMemo(() => {
     const map: Record<string, { id: number; name: string }> = {};
@@ -78,13 +96,17 @@ export default function Dashboard() {
     return map;
   }, [devices]);
 
-  // Obtener lista de dispositivos para mapear IP a ID
+  // Fetch device list to map IP to ID on mount
+  // Obtener lista de dispositivos para mapear IP a ID al montar el componente
   useEffect(() => {
     fetch(`${RPI_BASE_URL}/devices/`).then(res => res.json()).then(setDevices);
   }, []);
 
+  // authFetch and toggleTerminal removed as unused
   // authFetch y toggleTerminal eliminados por no usarse
 
+  // Fetch status from backend
+  // Obtener estado desde el backend
   const fetchStatus = async () => {
     const now = new Date().toLocaleTimeString();
     setLastPing(now);
@@ -92,46 +114,50 @@ export default function Dashboard() {
     setGlobalError("");
     try {
       const res = await fetch(`${RPI_BASE_URL}/api/v1/status`);
-      if (!res.ok) throw new Error("No se pudo conectar con el backend");
+      if (!res.ok) throw new Error("Could not connect to backend");
       const data = await res.json();
       setStatusList(Array.isArray(data) ? data : []);
       setIsOnline(true);
     } catch (err) {
       setIsOnline(false);
       setStatusList([]);
-      setGlobalError("No se pudo conectar con el backend. Verifica la red o el servidor.");
+      setGlobalError("Could not connect to backend. Check network or server.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch logs from backend
+  // Obtener logs desde el backend
   const fetchLogs = async () => {
     try {
       const res = await fetch(`${RPI_BASE_URL}/log`);
-      if (!res.ok) throw new Error("No se pudo conectar con el backend");
+      if (!res.ok) throw new Error("Could not connect to backend");
       const data = await res.json();
       setLogsByRaspberry(Array.isArray(data) ? data : []);
-      // Verifica si todos los logs fallaron
+      // Check if all logs failed
+      // Verificar si todos los logs fallaron
       if (Array.isArray(data) && data.length > 0) {
         const allFail = data.every((d) => d.logs && d.logs.error);
         const someFail = data.some((d) => d.logs && d.logs.error);
         if (allFail) {
-          setGlobalError("No se pudo obtener el historial de logs de ningún dispositivo.");
+          setGlobalError("Could not get log history from any device.");
         } else if (someFail) {
-          setGlobalError("Algunos dispositivos no respondieron al obtener el historial de logs.");
+          setGlobalError("Some devices did not respond when fetching log history.");
         } else {
           setGlobalError("");
         }
       } else {
-        setGlobalError("No se pudo obtener el historial de logs.");
+        setGlobalError("Could not get log history.");
       }
     } catch (err) {
       setLogsByRaspberry([]);
-      setGlobalError("No se pudo obtener el historial de logs.");
+      setGlobalError("Could not get log history.");
     }
   };
 
-  
+  // WebSocket and polling for real-time updates
+  // WebSocket y polling para actualizaciones en tiempo real
   useEffect(() => {
     let ws: WebSocket | null = null;
     let wsActive = false;
@@ -146,8 +172,8 @@ export default function Dashboard() {
         try {
           const data = JSON.parse(event.data);
           if (data.devices) setDevices(data.devices);
-          if (data.metrics) {/* could be used for real-time chart updates */}
-          if (data.alerts) {/* could be used for real-time alerts */}
+          if (data.metrics) {/* could be used for real-time chart updates / podría usarse para actualizar gráficas en tiempo real */}
+          if (data.alerts) {/* could be used for real-time alerts / podría usarse para alertas en tiempo real */}
         } catch {}
       };
     }
@@ -168,7 +194,8 @@ export default function Dashboard() {
     };
   }, [tab]);
 
-  // Logout
+  // Logout handler
+  // Manejador de cierre de sesión
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
@@ -183,16 +210,8 @@ export default function Dashboard() {
 
   return (
     <div className="p-4 space-y-4">
-      {/* Tabs */}
+      {/* Tabs / Pestañas */}
       <div className="flex gap-2 mb-4 items-center">
-        <select
-          className="bg-gray-800 text-white rounded px-2 py-1 mr-2"
-          value={i18n.language}
-          onChange={e => i18n.changeLanguage(e.target.value)}
-        >
-          <option value="es">ES</option>
-          <option value="en">EN</option>
-        </select>
         <button
           className={`px-4 py-2 rounded-t ${tab === "dashboard" ? "bg-blue-700 text-white" : "bg-gray-800 text-gray-300"}`}
           onClick={() => setTab("dashboard")}
@@ -204,15 +223,15 @@ export default function Dashboard() {
             className={`px-4 py-2 rounded-t ${tab === "admin" ? "bg-blue-700 text-white" : "bg-gray-800 text-gray-300"}`}
             onClick={() => setTab("admin")}
           >
-            {t("Administrar Dispositivos y Usuarios")}
+            Manage Devices and Users
           </button>
         )}
-        {/* Botón de historial de alertas eliminado */}
+        {/* Alert history button removed / Botón de historial de alertas eliminado */}
         <button
           className="ml-auto px-4 py-2 rounded bg-red-700 text-white"
           onClick={handleLogout}
         >
-          {t("Cerrar sesión")} {(() => {
+          Logout {(() => {
             try {
               const token = localStorage.getItem("token");
               if (!token) return "";
@@ -231,12 +250,10 @@ export default function Dashboard() {
       )}
       {tab === "dashboard" ? (
         <>
-          {/* Alertas activas */}
-          <AlertBanner />
-          {/* Error global eliminado, solo mensaje si no hay dispositivos accesibles */}
-          {/* Estado y ping eliminado */}
+          {/* Global error removed, only message if no accessible devices / Error global eliminado, solo mensaje si no hay dispositivos accesibles */}
+          {/* State and ping removed / Estado y ping eliminado */}
 
-          {/* Panel de métricas tipo matriz (tabla) para varias Raspberry Pi */}
+          {/* Metrics panel (table) for multiple Raspberry Pi / Panel de métricas tipo matriz (tabla) para varias Raspberry Pi */}
           {loading ? (
             <Spinner />
           ) : statusList.length > 0 ? (
@@ -246,19 +263,19 @@ export default function Dashboard() {
             />
           ) : null}
 
-          {/* Modal de gráfica de métricas */}
+          {/* Metrics chart modal / Modal de gráfica de métricas */}
           {showChart && (
             <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
               <div className="bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-2xl relative">
                 <button
                   className="absolute top-2 right-2 text-white bg-red-600 rounded-full px-2 py-1 hover:bg-red-700"
                   onClick={() => setShowChart(null)}
-                  aria-label="Cerrar"
+                  aria-label="Close"
                 >
                   ✕
                 </button>
-                <h2 className="text-lg font-bold mb-4">Histórico de métricas: {showChart.name}</h2>
-                <MetricChart deviceId={showChart.deviceId} />
+                <h2 className="text-lg font-bold mb-4">Metrics history: {showChart.name}</h2>
+                {/* MetricChart removed: no chart implementation */}
               </div>
             </div>
           )}

@@ -1,5 +1,58 @@
 # Raingauge Dashboard
 
+---
+
+## 📖 Resumen en Español
+
+Dashboard centralizado para el monitoreo y gestión en tiempo real de múltiples dispositivos Raspberry Pi. Incluye administración de usuarios y dispositivos, métricas históricas, actualizaciones en tiempo real vía WebSockets, internacionalización (ES/EN) y alertas avanzadas.
+
+### Estructura del Proyecto
+
+```
+backend/
+frontend/
+docker-compose.yml
+README.md
+```
+
+### Requisitos
+- Docker y Docker Compose
+- Node.js y npm (para desarrollo local del frontend)
+
+### Instalación y Despliegue
+1. Clona el repositorio y entra en el directorio.
+2. (Opcional) Para desarrollo local del frontend:
+   ```bash
+   cd frontend
+   npm install
+   ```
+3. Configura las variables de entorno en `backend/.env` y `frontend/.env` (ver archivos de ejemplo).
+4. Construye e inicia los servicios:
+   ```bash
+   docker-compose build
+   docker-compose up -d
+   ```
+5. Accede al dashboard en [http://localhost](http://localhost).
+
+### Uso
+- Inicia sesión con tus credenciales locales (creadas por un admin).
+- Monitorea el estado de todos los dispositivos Raspberry Pi en tiempo real.
+- Administra dispositivos y usuarios desde el panel de administración.
+- Cambia el idioma de la interfaz (ES/EN) desde el selector de idioma.
+- Recibe alertas críticas por Telegram (si está configurado).
+
+### Características
+- **Monitoreo de Dispositivos:** Estado, métricas y logs en tiempo real para cada dispositivo.
+- **Admin. de Usuarios y Dispositivos:** Agrega, edita y elimina usuarios y dispositivos. Unicidad de usuario/IP garantizada.
+- **Internacionalización:** Interfaz completamente traducida (Español/Inglés).
+- **WebSockets:** Actualizaciones en vivo de estado y alertas.
+- **Alertas:** Integración con Telegram para notificaciones críticas.
+- **Acceso por Roles:** Solo los administradores pueden gestionar usuarios/dispositivos.
+
+---
+
+# English Version
+
 Centralized dashboard for real-time monitoring and management of multiple Raspberry Pi devices. Includes user and device administration, historical metrics, real-time updates via WebSockets, internationalization (ES/EN), and advanced alerting.
 
 ---

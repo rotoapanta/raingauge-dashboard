@@ -1,6 +1,9 @@
 /**
  * RaspberryTable.tsx
  *
+ * Component that displays a summary table of all Raspberry Pi devices and their main metrics.
+ * Includes status, CPU, RAM, temperature, hostname, battery, uptime, and disks.
+ *
  * Componente que muestra una tabla resumen de todas las Raspberry Pi y sus métricas principales.
  * Incluye estado, CPU, RAM, temperatura, hostname, batería, uptime y discos.
  */
@@ -67,11 +70,14 @@ interface RaspberryTableProps {
 }
 
 /**
+ * Summary table of all Raspberry Pi devices and their main metrics.
+ *
  * Tabla resumen de todas las Raspberry Pi y sus métricas principales.
  */
 export const RaspberryTable: React.FC<RaspberryTableProps> = ({ statusList, logsByRaspberry }) => {
   const { t } = useTranslation();
   return (
+    // Table container / Contenedor de la tabla
     <div className="overflow-x-auto">
       <table className="min-w-full bg-gray-900 rounded-lg shadow">
         <thead>
@@ -115,6 +121,7 @@ export const RaspberryTable: React.FC<RaspberryTableProps> = ({ statusList, logs
                   : "-"
               }</td>
               <td className="px-2 py-1 text-left">
+                {/* Disk info / Información de disco */}
                 {status.disk_info && (
                   <div className="text-xs">
                     <div>Total: {status.disk_info.total} GB</div>
@@ -122,6 +129,7 @@ export const RaspberryTable: React.FC<RaspberryTableProps> = ({ statusList, logs
                     <div>Libre: {status.disk_info.free} GB</div>
                   </div>
                 )}
+                {/* USB disks / Discos USB */}
                 {status.usb && status.usb.length > 0 && (
                   <div className="mt-1 text-xs">
                     {status.usb.map((usb, i) => (
@@ -135,6 +143,7 @@ export const RaspberryTable: React.FC<RaspberryTableProps> = ({ statusList, logs
                     ))}
                   </div>
                 )}
+                {/* No disk info / Sin información de disco */}
                 {!(status.disk_info || (status.usb && status.usb.length > 0)) && "-"}
               </td>
             </tr>
@@ -145,6 +154,8 @@ export const RaspberryTable: React.FC<RaspberryTableProps> = ({ statusList, logs
   );
 };
 
+// Format uptime in human-readable form
+// Formatear uptime en forma legible
 function formatUptime(uptime: number): string {
   if (uptime < 60) return `${uptime}s`;
   const m = Math.floor(uptime / 60);

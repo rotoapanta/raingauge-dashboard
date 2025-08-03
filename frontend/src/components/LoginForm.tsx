@@ -1,8 +1,11 @@
 /**
  * LoginForm.tsx
  *
- * Componente de formulario de inicio de sesión.
- * Permite autenticarse con usuario y contraseña, mostrando errores y feedback visual.
+ * Login form component for user authentication. Shows errors and visual feedback.
+ * Stores JWT token in localStorage on successful login.
+ *
+ * Componente de formulario de inicio de sesión para autenticación de usuario. Muestra errores y feedback visual.
+ * Guarda el token JWT en localStorage al autenticarse correctamente.
  */
 
 import { useState } from "react";
@@ -14,8 +17,9 @@ interface LoginFormProps {
 }
 
 /**
- * Formulario de login con autenticación local.
- * Guarda el token JWT en localStorage al autenticarse correctamente.
+ * Login form with local authentication. Handles form state, error display, and password visibility toggle.
+ *
+ * Formulario de login con autenticación local. Maneja el estado del formulario, muestra errores y permite alternar la visibilidad de la contraseña.
  */
 export function LoginForm({ onLogin }: LoginFormProps) {
   const { t } = useTranslation();
@@ -25,7 +29,8 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Maneja el envío del formulario de login
+  // Handle login form submission
+  // Manejar el envío del formulario de login
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -38,23 +43,25 @@ export function LoginForm({ onLogin }: LoginFormProps) {
         body: JSON.stringify({ username, password }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Error de autenticación");
+      if (!res.ok) throw new Error(data.detail || "Authentication error");
       localStorage.setItem("token", data.access_token);
       onLogin();
     } catch (e: any) {
-      setError(e.message || "Error de autenticación");
+      setError(e.message || "Authentication error");
     } finally {
       setLoading(false);
     }
   };
 
   return (
+    // Login form container / Contenedor del formulario de login
     <form onSubmit={handleSubmit} className="bg-gray-900 p-6 rounded shadow max-w-sm mx-auto mt-12 flex flex-col gap-4">
-      <h2 className="text-lg font-bold mb-2">{t("Iniciar sesión")}</h2>
+      <h2 className="text-lg font-bold mb-2">Sign In</h2>
+      {/* Error message / Mensaje de error */}
       {error && <div className="text-red-400">{error}</div>}
       <input
         type="text"
-        placeholder={t("Usuario")}
+        placeholder={t("Username")}
         value={username}
         onChange={e => setUsername(e.target.value)}
         className="p-2 rounded bg-gray-800 text-white"
@@ -63,12 +70,13 @@ export function LoginForm({ onLogin }: LoginFormProps) {
       <div className="relative">
         <input
           type={showPassword ? "text" : "password"}
-          placeholder={t("Contraseña")}
+          placeholder={t("Password")}
           value={password}
           onChange={e => setPassword(e.target.value)}
           className="p-2 rounded bg-gray-800 text-white w-full pr-10"
           required
         />
+        {/* Password visibility toggle / Alternar visibilidad de la contraseña */}
         <button
           type="button"
           className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
@@ -83,7 +91,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         disabled={loading}
       >
-        {loading ? t("Ingresando...") : t("Ingresar")}
+        {loading ? t("Signing in...") : t("Sign In")}
       </button>
     </form>
   );

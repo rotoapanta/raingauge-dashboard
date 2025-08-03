@@ -1,6 +1,8 @@
 """
 ping_task.py
 
+Background monitoring of Raspberry Pi device status. Sends alerts and logs status changes.
+
 Monitoreo en background del estado de las Raspberry Pi. Envía alertas y registra cambios de estado.
 """
 
@@ -18,12 +20,15 @@ logger = logging.getLogger("raingauge-backend")
 
 def is_online(ip: str) -> bool:
     """
+    Check if a Raspberry Pi is online by making an HTTP request to /status.
     Verifica si una Raspberry Pi está online mediante una petición HTTP a /status.
 
     Args:
+        ip (str): Device IP address.
         ip (str): Dirección IP del dispositivo.
 
     Returns:
+        bool: True if responds correctly, False otherwise.
         bool: True si responde correctamente, False en caso contrario.
     """
     try:
@@ -36,6 +41,7 @@ def is_online(ip: str) -> bool:
 
 def start_monitoring() -> None:
     """
+    Start continuous monitoring of devices. Sends alerts and logs status changes.
     Inicia el monitoreo continuo de dispositivos. Envía alertas y registra cambios de estado.
     """
     previous_status: Dict[str, bool] = {}
@@ -48,9 +54,9 @@ def start_monitoring() -> None:
                 last_status = previous_status.get(ip)
                 if last_status is None:
                     previous_status[ip] = online
-                    continue  # No alertar en el primer ciclo
+                    continue  # Do not alert on first cycle / No alertar en el primer ciclo
                 if online != last_status:
-                    # Cambio de estado: enviar alerta y registrar
+                    # State change: send alert and log / Cambio de estado: enviar alerta y registrar
                     from utils import escape_markdown
                     if online:
                         msg = (
@@ -69,4 +75,4 @@ def start_monitoring() -> None:
                     crud.create_alert(session, device.id, level, msg)
                     logger.info(f"[ALERTA] {msg}")
                     previous_status[ip] = online
-        time.sleep(10)  # Intervalo de monitoreo
+        time.sleep(10)  # Monitoring interval / Intervalo de monitoreo

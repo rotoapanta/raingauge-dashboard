@@ -1,8 +1,11 @@
 /**
  * UserAdmin.tsx
  *
- * Componente de administración de usuarios.
- * Permite agregar, editar, eliminar y listar usuarios con autenticación.
+ * User administration component for CRUD operations with authentication.
+ * Allows adding, editing, deleting, and listing users.
+ *
+ * Componente de administración de usuarios para operaciones CRUD con autenticación.
+ * Permite agregar, editar, eliminar y listar usuarios.
  */
 
 import { useEffect, useState } from "react";
@@ -17,7 +20,11 @@ interface User {
 }
 
 /**
- * Componente para administrar usuarios (CRUD) con autenticación.
+ * Main component for managing users (CRUD) with authentication.
+ * Handles user list, form state, and actions for add, edit, and delete.
+ *
+ * Componente principal para administrar usuarios (CRUD) con autenticación.
+ * Maneja la lista de usuarios, el estado del formulario y las acciones de agregar, editar y eliminar.
  */
 export function UserAdmin() {
   const [users, setUsers] = useState<User[]>([]);
@@ -30,7 +37,8 @@ export function UserAdmin() {
   const token = localStorage.getItem("token");
   const { t } = useTranslation();
 
-  // Obtiene la lista de usuarios
+  // Fetch the list of users from the backend
+  // Obtener la lista de usuarios del backend
   const fetchUsers = async () => {
     setLoading(true);
     setError("");
@@ -41,23 +49,27 @@ export function UserAdmin() {
       const data = await res.json();
       setUsers(data);
     } catch (e) {
-      setError(t("No se pudo obtener la lista de usuarios."));
+      setError("Could not fetch user list."); // No se pudo obtener la lista de usuarios.
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch users on mount
+  // Obtener usuarios al montar el componente
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Maneja cambios en el formulario
+  // Handle form input changes
+  // Manejar cambios en el formulario
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Envía el formulario para agregar o actualizar un usuario
+  // Handle form submission for adding or updating a user
+  // Manejar el envío del formulario para agregar o actualizar un usuario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -79,15 +91,14 @@ export function UserAdmin() {
         try {
           const data = await res.json();
           if (data && data.detail) {
-            msg = t(data.detail);
+            msg = data.detail;
           }
         } catch {}
         if (!msg) {
-          msg = t("Error al guardar el usuario.");
+          msg = "Error saving user."; // Error al guardar el usuario.
         }
         if (
-          msg.toLowerCase().includes("already exists") ||
-          msg.toLowerCase().includes("ya existe")
+          msg.toLowerCase().includes("already exists")
         ) {
           setSuccessMessage(msg);
           setTimeout(() => setSuccessMessage(""), 3000);
@@ -98,22 +109,24 @@ export function UserAdmin() {
       setForm({ role: "user" });
       setEditingId(null);
       fetchUsers();
-      setSuccessMessage(t("Usuario agregado correctamente"));
+      setSuccessMessage(editingId ? "User updated successfully" : "User added successfully");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (e: any) {
-      setError(e.message || t("Error al guardar el usuario."));
+      setError(e.message || "Error saving user."); // Error al guardar el usuario.
     }
   };
 
-  // Rellena el formulario para editar un usuario
+  // Fill the form for editing a user
+  // Rellenar el formulario para editar un usuario
   const handleEdit = (user: User) => {
     setForm(user);
     setEditingId(user.id!);
   };
 
-  // Elimina un usuario
+  // Delete a user
+  // Eliminar un usuario
   const handleDelete = async (id: number) => {
-    if (!window.confirm(t("¿Seguro que deseas eliminar este usuario?"))) return;
+    if (!window.confirm("Are you sure you want to delete this user?")) return; // ¿Seguro que deseas eliminar este usuario?
     try {
       const res = await fetch(`${RPI_BASE_URL}/users/${id}`, {
         method: "DELETE",
@@ -121,16 +134,16 @@ export function UserAdmin() {
       });
       if (!res.ok) throw new Error();
       fetchUsers();
-      setSuccessMessage(t("Usuario eliminado correctamente"));
+      setSuccessMessage("User deleted successfully"); // Usuario eliminado correctamente
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch {
-      setError(t("Error al eliminar el usuario."));
+      setError("Error deleting user."); // Error al eliminar el usuario.
     }
   };
 
   return (
     <div className="bg-gray-900 p-4 rounded shadow">
-      <h2 className="text-lg font-bold mb-4">{t("Administrar Usuarios")}</h2>
+      <h2 className="text-lg font-bold mb-4">User Administration</h2>
       {successMessage && (
         <div className="bg-green-700 text-white px-4 py-2 rounded mb-2 text-center font-semibold">
           {successMessage}
@@ -143,7 +156,7 @@ export function UserAdmin() {
             name="username"
             value={form.username || ""}
             onChange={handleChange}
-            placeholder={t("Usuario")}
+            placeholder="Username"
             className="p-2 rounded bg-gray-800 text-white flex-1"
             required
           />
@@ -151,7 +164,7 @@ export function UserAdmin() {
             name="email"
             value={form.email || ""}
             onChange={handleChange}
-            placeholder={t("Email")}
+            placeholder="Email"
             className="p-2 rounded bg-gray-800 text-white flex-1"
           />
           <select
@@ -160,15 +173,15 @@ export function UserAdmin() {
             onChange={handleChange}
             className="p-2 rounded bg-gray-800 text-white"
           >
-            <option value="user">{t("Usuario")}</option>
-            <option value="admin">{t("Administrador")}</option>
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
           </select>
         </div>
         <button
           type="submit"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-40"
         >
-          {editingId ? t("Actualizar") : t("Agregar")}
+          {editingId ? "Update" : "Add"}
         </button>
         {editingId && (
           <button
@@ -179,21 +192,21 @@ export function UserAdmin() {
               setEditingId(null);
             }}
           >
-            {t("Cancelar edición")}
+            Cancel edit
           </button>
         )}
       </form>
-      <h3 className="font-semibold mb-2">{t("Lista de usuarios")}</h3>
+      <h3 className="font-semibold mb-2">User List</h3>
       {loading ? (
-        <div className="text-gray-400">{t("Cargando...")}</div>
+        <div className="text-gray-400">Loading...</div>
       ) : (
         <table className="min-w-full text-white text-sm rounded shadow">
           <thead>
             <tr className="bg-gray-700 text-left">
-              <th className="px-2 py-1">{t("Usuario")}</th>
-              <th className="px-2 py-1">{t("Email")}</th>
-              <th className="px-2 py-1">{t("Rol")}</th>
-              <th className="px-2 py-1">{t("Acciones")}</th>
+              <th className="px-2 py-1">Username</th>
+              <th className="px-2 py-1">Email</th>
+              <th className="px-2 py-1">Role</th>
+              <th className="px-2 py-1">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -201,19 +214,19 @@ export function UserAdmin() {
               <tr key={u.id} className="border-t border-gray-700">
                 <td className="px-2 py-1">{u.username}</td>
                 <td className="px-2 py-1">{u.email}</td>
-                <td className="px-2 py-1">{u.role === "admin" ? t("Administrador") : t("Usuario")}</td>
+                <td className="px-2 py-1">{u.role === "admin" ? "Admin" : "User"}</td>
                 <td className="px-2 py-1 flex gap-2">
                   <button
                     className="text-blue-400 underline"
                     onClick={() => handleEdit(u)}
                   >
-                    {t("Editar")}
+                    Edit
                   </button>
                   <button
                     className="text-red-400 underline"
                     onClick={() => handleDelete(u.id!)}
                   >
-                    {t("Eliminar")}
+                    Delete
                   </button>
                 </td>
               </tr>

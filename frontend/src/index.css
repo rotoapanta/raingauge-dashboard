@@ -1,3 +1,11 @@
+/*
+  index.css
+
+  Global stylesheet for the frontend application. Entry point for Tailwind CSS base, components, and utilities.
+
+  Hoja de estilos global para la aplicación frontend. Punto de entrada para las directivas base, componentes y utilidades de Tailwind CSS.
+*/
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
