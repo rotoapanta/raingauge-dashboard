@@ -59,8 +59,6 @@ export function LoginForm({ onLogin }: LoginFormProps) {
     <form onSubmit={handleSubmit} className="bg-gray-900 p-6 rounded shadow max-w-sm mx-auto mt-12 flex flex-col gap-4">
       <img src={logo} alt="Raspberry Pi Dashboard Logo" className="mx-auto mb-4 w-72 h-72 object-contain" />
       <h2 className="text-lg font-bold mb-2">Sign In</h2>
-      {/* Error message / Mensaje de error */}
-      {error && <div className="text-red-400">{error}</div>}
       <input
         type="text"
         placeholder={t("Username")}
@@ -95,6 +93,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
       >
         {loading ? t("Signing in...") : t("Sign In")}
       </button>
+      {error && <div className="text-red-400 mt-2 text-center">{error}</div>}
     </form>
   );
 }

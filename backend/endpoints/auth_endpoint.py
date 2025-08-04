@@ -49,8 +49,10 @@ def local_login(data: LoginRequest) -> Dict[str, str]:
     """
     with Session(engine) as session:
         user = session.exec(select(User).where(User.username == data.username)).first()
-        if not user or not user.password_hash:
-            raise HTTPException(status_code=401, detail="User not found or no local password set")
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+        if not user.password_hash:
+            raise HTTPException(status_code=401, detail="No local password set for this user")
         if not bcrypt.checkpw(data.password.encode(), user.password_hash.encode()):
             raise HTTPException(status_code=401, detail="Incorrect password")
         payload = {
