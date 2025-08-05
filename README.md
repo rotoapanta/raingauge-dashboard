@@ -99,7 +99,18 @@ If you change JWT_SECRET, all users will need to log in again. Never commit your
 - 🛡️ **Role-based Access:** Only admins can manage users/devices.
 
 ## Advanced Configuration
-- 🔔 **Telegram Alerts:** Set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in `backend/.env`.
+
+### Telegram Alerts
+- 🔔 **Telegram Alerts:**
+  - Set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in `backend/.env`.
+  - To get a bot token, create a bot with [@BotFather](https://t.me/BotFather) on Telegram and copy the token it gives you.
+  - To get your chat ID, you can use [@userinfobot](https://t.me/userinfobot) or send a message to your bot and check the logs for the chat ID.
+  - Example in `backend/.env`:
+    ```
+    TELEGRAM_BOT_TOKEN=123456789:ABCdefGHIjklMNOpqrSTUvwxYZ
+    TELEGRAM_CHAT_ID=123456789
+    ```
+  - If you do not set these variables, Telegram alerts will not be sent, but the dashboard will still work.
 - ⚡ **WebSockets:** Real-time updates require open WebSocket ports.
 
 ## Security & Roles
@@ -204,7 +215,18 @@ Si cambias el JWT_SECRET, todos los usuarios deberán volver a iniciar sesión. 
 - 🛡️ **Acceso por Roles:** Solo los administradores pueden gestionar usuarios/dispositivos.
 
 ## Configuración Avanzada
-- 🔔 **Alertas Telegram:** Configura `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` en `backend/.env`.
+
+### Alertas Telegram
+- 🔔 **Alertas Telegram:**
+  - Configura `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` en `backend/.env`.
+  - Para obtener el token del bot, crea un bot con [@BotFather](https://t.me/BotFather) en Telegram y copia el token que te da.
+  - Para obtener tu chat ID, puedes usar [@userinfobot](https://t.me/userinfobot) o enviar un mensaje a tu bot y revisar los logs para ver el chat ID.
+  - Ejemplo en `backend/.env`:
+    ```
+    TELEGRAM_BOT_TOKEN=123456789:ABCdefGHIjklMNOpqrSTUvwxYZ
+    TELEGRAM_CHAT_ID=123456789
+    ```
+  - Si no configuras estas variables, las alertas de Telegram no se enviarán, pero el dashboard funcionará igual.
 - ⚡ **WebSockets:** Las actualizaciones en tiempo real requieren puertos WebSocket abiertos.
 
 ## Seguridad y Roles
