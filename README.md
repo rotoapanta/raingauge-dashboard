@@ -30,19 +30,39 @@ README.md
 - 🟢 Node.js and npm (for local frontend development)
 
 ## Installation & Deployment
-1. 📥 Clone the repository and enter the directory.
-2. (Optional) For local frontend development:
+
+1. 📥 **Clone the repository:**
+   ```bash
+   git clone git@github.com:rotoapanta/raspberry-pi-dashboard.git
+   cd raspberry-pi-dashboard
+   ```
+2. 🔧 **Configure environment variables:**
+   - Copy `.env.example` to `.env` in both `backend/` and `frontend/` and edit as needed:
+     ```bash
+     cp backend/.env.example backend/.env
+     cp frontend/.env.example frontend/.env
+     # Edit the .env files with your preferred editor
+     ```
+3. (Optional) **For local frontend development:**
    ```bash
    cd frontend
    npm install
+   npm run dev
    ```
-3. 🔧 Configure environment variables in `backend/.env` and `frontend/.env` as needed (see sample files).
-4. 🏗️ Build and start the services:
+4. 🏗️ **Build and start the services with Docker Compose:**
    ```bash
    docker-compose build
    docker-compose up -d
    ```
-5. 🌐 Access the dashboard at [http://localhost](http://localhost).
+5. 👤 **Create the first admin user:**
+   ```bash
+   docker exec -it raingauge-backend bash
+   python3 create_local_user.py
+   ```
+   Follow the prompts to enter username, password, and role (use `admin` for the first user).
+6. 🌐 **Access the dashboard:**
+   - On your PC: [http://localhost](http://localhost)
+   - On your mobile (same WiFi): [http://<your_pc_ip>](http://<your_pc_ip>)
 
 ## JWT_SECRET Configuration
 The backend uses the `JWT_SECRET` environment variable to sign and verify authentication JWT tokens. You must define a long, random, secure value in `backend/.env`:
@@ -128,19 +148,39 @@ README.md
 - 🟢 Node.js y npm (para desarrollo local del frontend)
 
 ## Instalación y Despliegue
-1. 📥 Clona el repositorio y entra en el directorio.
-2. (Opcional) Para desarrollo local del frontend:
+
+1. 📥 **Clona el repositorio:**
+   ```bash
+   git clone git@github.com:rotoapanta/raspberry-pi-dashboard.git
+   cd raspberry-pi-dashboard
+   ```
+2. 🔧 **Configura las variables de entorno:**
+   - Copia `.env.example` a `.env` en `backend/` y `frontend/` y edítalos según tu entorno:
+     ```bash
+     cp backend/.env.example backend/.env
+     cp frontend/.env.example frontend/.env
+     # Edita los archivos .env con tu editor preferido
+     ```
+3. (Opcional) **Para desarrollo local del frontend:**
    ```bash
    cd frontend
    npm install
+   npm run dev
    ```
-3. 🔧 Configura las variables de entorno en `backend/.env` y `frontend/.env` (ver archivos de ejemplo).
-4. 🏗️ Construye e inicia los servicios:
+4. 🏗️ **Construye e inicia los servicios con Docker Compose:**
    ```bash
    docker-compose build
    docker-compose up -d
    ```
-5. 🌐 Accede al dashboard en [http://localhost](http://localhost).
+5. 👤 **Crea el primer usuario admin:**
+   ```bash
+   docker exec -it raingauge-backend bash
+   python3 create_local_user.py
+   ```
+   Sigue las instrucciones para ingresar usuario, contraseña y rol (usa `admin` para el primer usuario).
+6. 🌐 **Accede al dashboard:**
+   - En tu PC: [http://localhost](http://localhost)
+   - En tu móvil (misma WiFi): [http://<ip_de_tu_pc>](http://<ip_de_tu_pc>)
 
 ## Configuración de JWT_SECRET
 El backend usa la variable de entorno `JWT_SECRET` para firmar y verificar los tokens JWT de autenticación. Debes definir un valor largo, aleatorio y seguro en `backend/.env`:
