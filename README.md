@@ -79,7 +79,6 @@ If you change JWT_SECRET, all users will need to log in again. Never commit your
 - 🔑 Log in with your local user credentials (created by an admin).
 - 📊 Monitor the status of all Raspberry Pi devices in real time.
 - 🛠️ Administer devices and users from the admin panel.
-- 🌐 Switch interface language (ES/EN) from the language selector.
 - 🔔 Receive critical alerts via Telegram (if configured).
 
 ## Features
@@ -91,7 +90,6 @@ If you change JWT_SECRET, all users will need to log in again. Never commit your
 
 ## Advanced Configuration
 - 🔔 **Telegram Alerts:** Set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in `backend/.env`.
-- 🌐 **Internationalization:** Add/modify translation files in `frontend/src/locales/`.
 - ⚡ **WebSockets:** Real-time updates require open WebSocket ports.
 
 ## Security & Roles
@@ -186,7 +184,6 @@ Si cambias el JWT_SECRET, todos los usuarios deberán volver a iniciar sesión. 
 - 🔑 Inicia sesión con tus credenciales locales (creadas por un admin).
 - 📊 Monitorea el estado de todos los dispositivos Raspberry Pi en tiempo real.
 - 🛠️ Administra dispositivos y usuarios desde el panel de administración.
-- 🌐 Cambia el idioma de la interfaz (ES/EN) desde el selector de idioma.
 - 🔔 Recibe alertas críticas por Telegram (si está configurado).
 
 ## Características
@@ -198,7 +195,6 @@ Si cambias el JWT_SECRET, todos los usuarios deberán volver a iniciar sesión. 
 
 ## Configuración Avanzada
 - 🔔 **Alertas Telegram:** Configura `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` en `backend/.env`.
-- 🌐 **Internacionalización:** Agrega/modifica archivos de traducción en `frontend/src/locales/`.
 - ⚡ **WebSockets:** Las actualizaciones en tiempo real requieren puertos WebSocket abiertos.
 
 ## Seguridad y Roles
