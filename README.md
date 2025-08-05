@@ -8,13 +8,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Author](https://img.shields.io/badge/Roberto%20Toapanta-Linkedin-blue)](https://www.linkedin.com/in/roberto-carlos-toapanta-g/)
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Python](https://img.shields.io/badge/Python-blue?logo=python&logoColor=white)](https://www.python.org/)
-[![Shell](https://img.shields.io/badge/Shell-blue?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
-[![JavaScript](https://img.shields.io/badge/JavaScript-blue?logo=javascript&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![Dockerfile](https://img.shields.io/badge/Dockerfile-blue?logo=docker&logoColor=white)](https://www.docker.com/)
-[![HTML](https://img.shields.io/badge/HTML-blue?logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
-[![CSS](https://img.shields.io/badge/CSS-blue?logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![TypeScript](https://img.shields.io/badge/TypeScript-brightgreen?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Python](https://img.shields.io/badge/Python-brightgreen?logo=python&logoColor=white)](https://www.python.org/)
+[![Shell](https://img.shields.io/badge/Shell-brightgreen?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-brightgreen?logo=javascript&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Dockerfile](https://img.shields.io/badge/Dockerfile-brightgreen?logo=docker&logoColor=white)](https://www.docker.com/)
+[![HTML](https://img.shields.io/badge/HTML-brightgreen?logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+[![CSS](https://img.shields.io/badge/CSS-brightgreen?logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
 
 # <p align="center">Raspberry Pi Dashboard</p>
 
