@@ -1,19 +1,39 @@
+# Node.js
+node_modules/
+dist/
+build/
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.env.*
+
 # Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.env
-
-# Node
-node_modules/
-dist/
-build/
+*.sqlite3
+*.db
+*.db-journal
+*.log
+*.env
+.env.*
+venv/
+.venv/
+backend/.env
+backend/raspberry.db
+backend/backend.log
+backend/logs/
 
 # Docker
-*.log
+*.pid
 
-# Editor
-.vscode/
-.idea/
+# OS
 .DS_Store
+Thumbs.db
+
+# Misc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

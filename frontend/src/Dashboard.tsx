@@ -211,24 +211,24 @@ export default function Dashboard() {
   return (
     <div className="p-4 space-y-4">
       {/* Tabs / Pestañas */}
-      <div className="flex gap-2 mb-4 items-center">
+      <div className="flex gap-2 mb-4 items-center flex-wrap">
         <button
-          className={`px-4 py-2 rounded-t ${tab === "dashboard" ? "bg-blue-700 text-white" : "bg-gray-800 text-gray-300"}`}
+          className={`px-4 py-2 md:px-6 md:py-3 rounded-t text-base md:text-lg font-semibold transition-all duration-150 ${tab === "dashboard" ? "bg-blue-700 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
           onClick={() => setTab("dashboard")}
         >
           {t("Dashboard")}
         </button>
         {userRole === "admin" && (
           <button
-            className={`px-4 py-2 rounded-t ${tab === "admin" ? "bg-blue-700 text-white" : "bg-gray-800 text-gray-300"}`}
+            className={`px-4 py-2 md:px-6 md:py-3 rounded-t text-base md:text-lg font-semibold transition-all duration-150 ${tab === "admin" ? "bg-blue-700 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
             onClick={() => setTab("admin")}
           >
-            Manage Devices and Users
+            {t("Manage Devices and Users")}
           </button>
         )}
         {/* Alert history button removed / Botón de historial de alertas eliminado */}
         <button
-          className="ml-auto px-4 py-2 rounded bg-red-700 text-white"
+          className="ml-auto px-4 py-2 md:px-6 md:py-3 rounded bg-red-700 text-white text-base md:text-lg font-semibold"
           onClick={handleLogout}
         >
           Logout {(() => {

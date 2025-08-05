@@ -56,15 +56,15 @@ export function LoginForm({ onLogin }: LoginFormProps) {
 
   return (
     // Login form container / Contenedor del formulario de login
-    <form onSubmit={handleSubmit} className="bg-gray-900 p-6 rounded shadow max-w-sm mx-auto mt-12 flex flex-col gap-4">
-      <img src={logo} alt="Raspberry Pi Dashboard Logo" className="mx-auto mb-4 w-72 h-72 object-contain" />
-      <h2 className="text-lg font-bold mb-2">Sign In</h2>
+    <form onSubmit={handleSubmit} className="bg-gray-900 p-4 md:p-6 rounded shadow max-w-xs md:max-w-sm mx-auto mt-8 md:mt-12 flex flex-col gap-4">
+      <img src={logo} alt="Raspberry Pi Dashboard Logo" className="mx-auto mb-4 w-28 h-28 md:w-72 md:h-72 object-contain" />
+      <h2 className="text-lg font-bold mb-2 text-center">Sign In</h2>
       <input
         type="text"
         placeholder={t("Username")}
         value={username}
         onChange={e => setUsername(e.target.value)}
-        className="p-2 rounded bg-gray-800 text-white"
+        className="p-2 md:p-3 rounded bg-gray-800 text-white text-base md:text-lg"
         required
       />
       <div className="relative">
@@ -73,7 +73,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
           placeholder={t("Password")}
           value={password}
           onChange={e => setPassword(e.target.value)}
-          className="p-2 rounded bg-gray-800 text-white w-full pr-10"
+          className="p-2 md:p-3 rounded bg-gray-800 text-white w-full pr-10 text-base md:text-lg"
           required
         />
         {/* Password visibility toggle / Alternar visibilidad de la contraseña */}
@@ -88,12 +88,12 @@ export function LoginForm({ onLogin }: LoginFormProps) {
       </div>
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        className="bg-blue-600 text-white px-4 py-2 md:px-6 md:py-3 rounded hover:bg-blue-700 text-base md:text-lg"
         disabled={loading}
       >
         {loading ? t("Signing in...") : t("Sign In")}
       </button>
-      {error && <div className="text-red-400 mt-2 text-center">{error}</div>}
+      {error && <div className="text-red-400 mt-2 text-center text-sm md:text-base">{error}</div>}
     </form>
   );
 }

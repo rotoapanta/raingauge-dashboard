@@ -142,22 +142,22 @@ export function UserAdmin() {
   };
 
   return (
-    <div className="bg-gray-900 p-4 rounded shadow">
-      <h2 className="text-lg font-bold mb-4">User Administration</h2>
+    <div className="bg-gray-900 p-4 md:p-6 rounded shadow">
+      <h2 className="text-lg font-bold mb-4 text-center">User Administration</h2>
       {successMessage && (
-        <div className="bg-green-700 text-white px-4 py-2 rounded mb-2 text-center font-semibold">
+        <div className="bg-green-700 text-white px-4 py-2 rounded mb-2 text-center font-semibold text-sm md:text-base">
           {successMessage}
         </div>
       )}
-      {error && <div className="text-red-400 mb-2">{error}</div>}
+      {error && <div className="text-red-400 mb-2 text-center text-sm md:text-base">{error}</div>}
       <form onSubmit={handleSubmit} className="mb-4 flex flex-col gap-2">
-        <div className="flex gap-2">
+        <div className="flex flex-col md:flex-row gap-2">
           <input
             name="username"
             value={form.username || ""}
             onChange={handleChange}
             placeholder="Username"
-            className="p-2 rounded bg-gray-800 text-white flex-1"
+            className="p-2 md:p-3 rounded bg-gray-800 text-white flex-1 text-base md:text-lg"
             required
           />
           <input
@@ -165,13 +165,13 @@ export function UserAdmin() {
             value={form.email || ""}
             onChange={handleChange}
             placeholder="Email"
-            className="p-2 rounded bg-gray-800 text-white flex-1"
+            className="p-2 md:p-3 rounded bg-gray-800 text-white flex-1 text-base md:text-lg"
           />
           <select
             name="role"
             value={form.role || "user"}
             onChange={handleChange}
-            className="p-2 rounded bg-gray-800 text-white"
+            className="p-2 md:p-3 rounded bg-gray-800 text-white text-base md:text-lg"
           >
             <option value="user">User</option>
             <option value="admin">Admin</option>
@@ -179,7 +179,7 @@ export function UserAdmin() {
         </div>
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-40"
+          className="bg-blue-600 text-white px-4 py-2 md:px-6 md:py-3 rounded hover:bg-blue-700 w-full md:w-40 text-base md:text-lg"
         >
           {editingId ? "Update" : "Add"}
         </button>
@@ -196,43 +196,45 @@ export function UserAdmin() {
           </button>
         )}
       </form>
-      <h3 className="font-semibold mb-2">User List</h3>
+      <h3 className="font-semibold mb-2 text-center">User List</h3>
       {loading ? (
-        <div className="text-gray-400">Loading...</div>
+        <div className="text-gray-400 text-center">Loading...</div>
       ) : (
-        <table className="min-w-full text-white text-sm rounded shadow">
-          <thead>
-            <tr className="bg-gray-700 text-left">
-              <th className="px-2 py-1">Username</th>
-              <th className="px-2 py-1">Email</th>
-              <th className="px-2 py-1">Role</th>
-              <th className="px-2 py-1">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u) => (
-              <tr key={u.id} className="border-t border-gray-700">
-                <td className="px-2 py-1">{u.username}</td>
-                <td className="px-2 py-1">{u.email}</td>
-                <td className="px-2 py-1">{u.role === "admin" ? "Admin" : "User"}</td>
-                <td className="px-2 py-1 flex gap-2">
-                  <button
-                    className="text-blue-400 underline"
-                    onClick={() => handleEdit(u)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="text-red-400 underline"
-                    onClick={() => handleDelete(u.id!)}
-                  >
-                    Delete
-                  </button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-white text-xs md:text-sm rounded shadow">
+            <thead>
+              <tr className="bg-gray-700 text-left">
+                <th className="px-1 py-1 md:px-2 md:py-1">Username</th>
+                <th className="px-1 py-1 md:px-2 md:py-1">Email</th>
+                <th className="px-1 py-1 md:px-2 md:py-1">Role</th>
+                <th className="px-1 py-1 md:px-2 md:py-1">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={u.id} className="border-t border-gray-700">
+                  <td className="px-1 py-1 md:px-2 md:py-1">{u.username}</td>
+                  <td className="px-1 py-1 md:px-2 md:py-1">{u.email}</td>
+                  <td className="px-1 py-1 md:px-2 md:py-1">{u.role === "admin" ? "Admin" : "User"}</td>
+                  <td className="px-1 py-1 md:px-2 md:py-1 flex gap-2 flex-wrap">
+                    <button
+                      className="text-blue-400 underline"
+                      onClick={() => handleEdit(u)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="text-red-400 underline"
+                      onClick={() => handleDelete(u.id!)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

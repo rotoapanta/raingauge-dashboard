@@ -79,25 +79,25 @@ export const RaspberryTable: React.FC<RaspberryTableProps> = ({ statusList, logs
   return (
     // Table container / Contenedor de la tabla
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-gray-900 rounded-lg shadow">
+      <table className="min-w-full bg-gray-900 rounded-lg shadow text-xs md:text-sm">
         <thead>
           <tr className="text-white text-center">
-            <th className="px-2 py-2"><Server className="inline" /> {t("IP")}</th>
-            <th className="px-2 py-2"><CheckCircle className="inline" /> {t("Estado")}</th>
-            <th className="px-2 py-2"><Activity className="inline" /> {t("CPU (%)")}</th>
-            <th className="px-2 py-2"><Gauge className="inline" /> {t("RAM (%)")}</th>
-            <th className="px-2 py-2"><Flame className="inline" /> {t("Temp (°C)")}</th>
-            <th className="px-2 py-2"><Server className="inline" /> {t("Hostname")}</th>
-            <th className="px-2 py-2"><BatteryFull className="inline" /> {t("Batería")}</th>
-            <th className="px-2 py-2">{t("Uptime")}</th>
-            <th className="px-2 py-2"><FolderOpen className="inline" /> {t("Discos")}</th>
+            <th className="px-1 py-1 md:px-2 md:py-2"><Server className="inline" /> {t("IP")}</th>
+            <th className="px-1 py-1 md:px-2 md:py-2"><CheckCircle className="inline" /> {t("Estado")}</th>
+            <th className="px-1 py-1 md:px-2 md:py-2"><Activity className="inline" /> {t("CPU (%)")}</th>
+            <th className="px-1 py-1 md:px-2 md:py-2"><Gauge className="inline" /> {t("RAM (%)")}</th>
+            <th className="px-1 py-1 md:px-2 md:py-2"><Flame className="inline" /> {t("Temp (°C)")}</th>
+            <th className="px-1 py-1 md:px-2 md:py-2"><Server className="inline" /> {t("Hostname")}</th>
+            <th className="px-1 py-1 md:px-2 md:py-2"><BatteryFull className="inline" /> {t("Batería")}</th>
+            <th className="px-1 py-1 md:px-2 md:py-2">{t("Uptime")}</th>
+            <th className="px-1 py-1 md:px-2 md:py-2"><FolderOpen className="inline" /> {t("Discos")}</th>
           </tr>
         </thead>
         <tbody>
           {statusList.map((status, idx) => (
             <tr key={status.ip || idx} className="text-center text-gray-200 hover:bg-gray-800 transition">
-              <td className="px-2 py-1 font-mono">{status.ip}</td>
-              <td className="px-2 py-1">
+              <td className="px-1 py-1 md:px-2 md:py-1 font-mono">{status.ip}</td>
+              <td className="px-1 py-1 md:px-2 md:py-1">
                 {status.error ? (
                   <span className="flex items-center justify-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-red-600 text-white">
                     <XCircle size={16} /> Offline
