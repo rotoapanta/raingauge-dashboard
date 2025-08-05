@@ -33,14 +33,14 @@ README.md
 
 1. 📥 **Clone the repository:**
    ```bash
-   git clone git@github.com:rotoapanta/raspberry-pi-dashboard.git
-   cd raspberry-pi-dashboard
+   $ git clone git@github.com:rotoapanta/raspberry-pi-dashboard.git
+   $ cd raspberry-pi-dashboard
    ```
 2. 🔧 **Configure environment variables:**
    - Copy `.env.example` to `.env` in both `backend/` and `frontend/` and edit as needed:
      ```bash
-     cp backend/.env.example backend/.env
-     cp frontend/.env.example frontend/.env
+     $ cp backend/.env.example backend/.env
+     $ cp frontend/.env.example frontend/.env
      # Edit the .env files with your preferred editor
      ```
 3. (Optional) **For local frontend development (for developers only):**
@@ -53,13 +53,13 @@ README.md
 4. 🏗️ **Build and start the services:**
    - Simply run the provided script:
      ```bash
-     ./run_dashboard.sh
+     $ ./run_dashboard.sh
      ```
    The script will build and start all containers for you.
 5. 👤 **Create the first admin user:**
    ```bash
-   docker exec -it raingauge-backend bash
-   python3 create_local_user.py
+   $ docker exec -it raingauge-backend bash
+   # python3 create_local_user.py
    ```
    Follow the prompts to enter username, password, and role (use `admin` for the first user).
 6. 🌐 **Access the dashboard:**
@@ -68,24 +68,12 @@ README.md
 
 ## JWT_SECRET Configuration
 The backend uses the `JWT_SECRET` environment variable to sign and verify authentication JWT tokens. You must define a long, random, secure value in `backend/.env`:
-```
-JWT_SECRET=Qw8f2k3l9s8d7f6g5h4j3k2l1m0n9b8v7c6x5z4a3s2d1f0g9h8j7k6l5m4n3b2v
-```
+
 You can generate a secure value with:
 ```
-python3 -c 'import secrets; print(secrets.token_urlsafe(32))'
+$ python3 -c 'import secrets; print(secrets.token_urlsafe(32))'
 ```
 If you change JWT_SECRET, all users will need to log in again. Never commit your real `.env` to the repository.
-
-## Creating the first admin user
-After starting the services, create the first admin user by running the following command:
-```bash
-# Enter the backend container
-sudo docker exec -it raingauge-backend bash
-# Inside the container, run:
-python3 create_local_user.py
-```
-Follow the prompts to enter the username, password, and role (use `admin` for the first user).
 
 ## Usage
 - 🔑 Log in with your local user credentials (created by an admin).
@@ -153,14 +141,14 @@ README.md
 
 1. 📥 **Clona el repositorio:**
    ```bash
-   git clone git@github.com:rotoapanta/raspberry-pi-dashboard.git
-   cd raspberry-pi-dashboard
+   $ git clone git@github.com:rotoapanta/raspberry-pi-dashboard.git
+   $ cd raspberry-pi-dashboard
    ```
 2. 🔧 **Configura las variables de entorno:**
    - Copia `.env.example` a `.env` en `backend/` y `frontend/` y edítalos según tu entorno:
      ```bash
-     cp backend/.env.example backend/.env
-     cp frontend/.env.example frontend/.env
+     $ cp backend/.env.example backend/.env
+     $ cp frontend/.env.example frontend/.env
      # Edita los archivos .env con tu editor preferido
      ```
 3. (Opcional) **Para desarrollo local del frontend (solo para desarrolladores):**
@@ -173,13 +161,13 @@ README.md
 4. 🏗️ **Construye e inicia los servicios:**
    - Simplemente ejecuta el script incluido:
      ```bash
-     ./run_dashboard.sh
+     $ ./run_dashboard.sh
      ```
    El script construirá e iniciará todos los contenedores automáticamente.
 5. 👤 **Crea el primer usuario admin:**
    ```bash
-   docker exec -it raingauge-backend bash
-   python3 create_local_user.py
+   $ docker exec -it raingauge-backend bash
+   # python3 create_local_user.py
    ```
    Sigue las instrucciones para ingresar usuario, contraseña y rol (usa `admin` para el primer usuario).
 6. 🌐 **Accede al dashboard:**
@@ -188,24 +176,12 @@ README.md
 
 ## Configuración de JWT_SECRET
 El backend usa la variable de entorno `JWT_SECRET` para firmar y verificar los tokens JWT de autenticación. Debes definir un valor largo, aleatorio y seguro en `backend/.env`:
-```
-JWT_SECRET=Qw8f2k3l9s8d7f6g5h4j3k2l1m0n9b8v7c6x5z4a3s2d1f0g9h8j7k6l5m4n3b2v
-```
+
 Puedes generar un valor seguro con:
 ```
-python3 -c 'import secrets; print(secrets.token_urlsafe(32))'
+$ python3 -c 'import secrets; print(secrets.token_urlsafe(32))'
 ```
 Si cambias el JWT_SECRET, todos los usuarios deberán volver a iniciar sesión. Nunca subas tu `.env` real al repositorio.
-
-## Creación del primer usuario admin
-Después de iniciar los servicios, crea el primer usuario administrador ejecutando el siguiente comando:
-```bash
-# Entra al contenedor backend
-sudo docker exec -it raingauge-backend bash
-# Dentro del contenedor, ejecuta:
-python3 create_local_user.py
-```
-Sigue las instrucciones para ingresar el nombre de usuario, contraseña y rol (usa `admin` para el primer usuario).
 
 ## Uso
 - 🔑 Inicia sesión con tus credenciales locales (creadas por un admin).
