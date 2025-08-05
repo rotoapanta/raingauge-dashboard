@@ -43,7 +43,8 @@ README.md
      cp frontend/.env.example frontend/.env
      # Edit the .env files with your preferred editor
      ```
-3. (Optional) **For local frontend development:**
+3. (Optional) **For local frontend development (for developers only):**
+   > Only needed if you want to develop or modify the frontend with hot reload. Not required for normal use with Docker.
    ```bash
    cd frontend
    npm install
@@ -162,7 +163,8 @@ README.md
      cp frontend/.env.example frontend/.env
      # Edita los archivos .env con tu editor preferido
      ```
-3. (Opcional) **Para desarrollo local del frontend:**
+3. (Opcional) **Para desarrollo local del frontend (solo para desarrolladores):**
+   > Solo es necesario si quieres desarrollar o modificar el frontend con hot reload. No es requerido para el uso normal con Docker.
    ```bash
    cd frontend
    npm install
