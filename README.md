@@ -49,11 +49,12 @@ README.md
    npm install
    npm run dev
    ```
-4. 🏗️ **Build and start the services with Docker Compose:**
-   ```bash
-   docker-compose build
-   docker-compose up -d
-   ```
+4. 🏗️ **Build and start the services:**
+   - Simply run the provided script:
+     ```bash
+     ./run_dashboard.sh
+     ```
+   The script will build and start all containers for you.
 5. 👤 **Create the first admin user:**
    ```bash
    docker exec -it raingauge-backend bash
@@ -167,11 +168,12 @@ README.md
    npm install
    npm run dev
    ```
-4. 🏗️ **Construye e inicia los servicios con Docker Compose:**
-   ```bash
-   docker-compose build
-   docker-compose up -d
-   ```
+4. 🏗️ **Construye e inicia los servicios:**
+   - Simplemente ejecuta el script incluido:
+     ```bash
+     ./run_dashboard.sh
+     ```
+   El script construirá e iniciará todos los contenedores automáticamente.
 5. 👤 **Crea el primer usuario admin:**
    ```bash
    docker exec -it raingauge-backend bash
