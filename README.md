@@ -15,7 +15,7 @@
 # 🇬🇧 English
 
 ## Overview
-Centralized dashboard for real-time monitoring and management of multiple Raspberry Pi devices. Includes user and device administration, historical metrics, real-time updates via WebSockets, internationalization (ES/EN), and advanced alerting.
+Centralized dashboard for real-time monitoring and management of multiple Raspberry Pi devices. Includes user and device administration, historical metrics, real-time updates via WebSockets, interface available in Spanish and English, and alerting via Telegram.
 
 ## Project Structure
 ```
@@ -85,9 +85,9 @@ If you change JWT_SECRET, all users will need to log in again. Never commit your
 ## Features
 - 📊 **Device Monitoring:** Real-time status, metrics, and logs for each device.
 - 👤 **User & Device Admin:** Add, edit, and remove users and devices. Enforced uniqueness for usernames and device IPs.
-- 🌐 **Internationalization:** Fully translated interface (Spanish/English).
+- 🌐 **Internationalization:** Interface available in Spanish and English. You can switch the language from the selector in the dashboard.
 - ⚡ **WebSockets:** Live updates for device status and alerts.
-- 🔔 **Alerting:** Telegram integration for critical notifications.
+- 🔔 **Alerting:** Telegram integration for notifications.
 - 🛡️ **Role-based Access:** Only admins can manage users/devices.
 
 ## Advanced Configuration
@@ -123,7 +123,7 @@ Pull requests and suggestions are welcome! See the `docs/` folder for advanced d
 # 🇪🇸 Español
 
 ## Resumen
-Dashboard centralizado para el monitoreo y gestión en tiempo real de múltiples dispositivos Raspberry Pi. Incluye administración de usuarios y dispositivos, métricas históricas, actualizaciones en tiempo real vía WebSockets, internacionalización (ES/EN) y alertas avanzadas.
+Dashboard centralizado para el monitoreo y gestión en tiempo real de múltiples dispositivos Raspberry Pi. Incluye administración de usuarios y dispositivos, métricas históricas, actualizaciones en tiempo real vía WebSockets, interfaz disponible en español e inglés y alertas por Telegram.
 
 ## Estructura del Proyecto
 ```
@@ -193,9 +193,9 @@ Si cambias el JWT_SECRET, todos los usuarios deberán volver a iniciar sesión. 
 ## Características
 - 📊 **Monitoreo de Dispositivos:** Estado, métricas y logs en tiempo real para cada dispositivo.
 - 👤 **Admin. de Usuarios y Dispositivos:** Agrega, edita y elimina usuarios y dispositivos. Unicidad de usuario/IP garantizada.
-- 🌐 **Internacionalización:** Interfaz completamente traducida (Español/Inglés).
+- 🌐 **Internacionalización:** Interfaz disponible en español e inglés. Puedes cambiar el idioma desde el selector en el dashboard.
 - ⚡ **WebSockets:** Actualizaciones en vivo de estado y alertas.
-- 🔔 **Alertas:** Integración con Telegram para notificaciones críticas.
+- 🔔 **Alertas:** Integración con Telegram para notificaciones.
 - 🛡️ **Acceso por Roles:** Solo los administradores pueden gestionar usuarios/dispositivos.
 
 ## Configuración Avanzada
