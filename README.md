@@ -7,8 +7,6 @@
 [![GitHub forks](https://img.shields.io/github/forks/rotoapanta/raspberry-pi-dashboard?style=social)](https://github.com/rotoapanta/raspberry-pi-dashboard/network/members)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Author](https://img.shields.io/badge/Roberto%20Toapanta-Linkedin-blue)](https://www.linkedin.com/in/roberto-carlos-toapanta-g/)
-
-
 ![Bash](https://img.shields.io/badge/bash-v4.4-blue.svg)
 ![Docker](https://img.shields.io/badge/docker-ready-blue)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
